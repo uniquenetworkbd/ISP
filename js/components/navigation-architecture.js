@@ -7,13 +7,14 @@ window.ISPApp=window.ISPApp||{};
     {key:'operations',label:'Operations',routes:['alerts','analytics','reports']},
     {key:'management',label:'Management',routes:['devices','system']}
   ];
-  const order=groups.flatMap(g=>g.routes);
+  const expected=groups.flatMap(g=>g.routes);
   function sync(){
     const nav=document.getElementById('primaryNav');
-    if(!nav||nav.dataset.architectureReady==='true')return;
+    if(!nav)return;
     const links=[...document.querySelectorAll('.sidebar [data-route]')];
-    if(!links.length)return;
     const byRoute=new Map(links.map(a=>[a.dataset.route,a]));
+    if(!expected.every(route=>byRoute.has(route)))return;
+    if(nav.dataset.architectureReady==='true')return;
     const frag=document.createDocumentFragment();
     groups.forEach(group=>{
       const label=document.createElement('div');
@@ -21,7 +22,7 @@ window.ISPApp=window.ISPApp||{};
       label.dataset.navGroup=group.key;
       label.textContent=group.label;
       frag.appendChild(label);
-      group.routes.forEach(route=>{const link=byRoute.get(route);if(link)frag.appendChild(link)});
+      group.routes.forEach(route=>frag.appendChild(byRoute.get(route)));
     });
     nav.replaceChildren(frag);
     nav.dataset.architectureReady='true';
@@ -30,12 +31,12 @@ window.ISPApp=window.ISPApp||{};
     sidebar?.querySelectorAll('.sidebar-section-label').forEach(x=>x.hidden=true);
     sidebar?.querySelectorAll('.sidebar > .nav:not(#primaryNav)').forEach(x=>x.hidden=true);
     const footer=sidebar?.querySelector('.sidebar-footer');
-    if(footer){footer.querySelector('span:last-child')?.replaceChildren(document.createTextNode('Frontend shell • Page architecture v1.0'));}
+    if(footer)footer.querySelector('span:last-child')?.replaceChildren(document.createTextNode('Frontend shell • Page architecture v1.0'));
   }
   function init(){
     const nav=document.getElementById('primaryNav');
     if(!nav)return;
-    const observer=new MutationObserver(()=>{if(nav.dataset.architectureReady!=='true')sync()});
+    const observer=new MutationObserver(sync);
     observer.observe(nav,{childList:true});
     sync();
   }
