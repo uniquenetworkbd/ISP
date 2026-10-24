@@ -10,5 +10,6 @@ window.ISPApp = window.ISPApp || {};
   function loadInterfaces(){load('js/components/interface-monitoring.js','interface-monitoring');}
   function loadAlerts(){load('js/components/alert-center.js','alert-center');}
   function loadAnalytics(){load('js/components/analytics-reports.js','analytics-reports');}
-  window.addEventListener('DOMContentLoaded',()=>{loadNetworkMap();loadMikrotik();loadOlt();loadOnu();loadInterfaces();loadAlerts();loadAnalytics();toast('Application shell loaded.');});
+  function loadNavigationArchitecture(){load('js/components/navigation-architecture.js','navigation-architecture');}
+  window.addEventListener('DOMContentLoaded',()=>{loadNetworkMap();loadMikrotik();loadOlt();loadOnu();loadInterfaces();loadAlerts();loadAnalytics();loadNavigationArchitecture();toast('Application shell loaded.');});
 })();
