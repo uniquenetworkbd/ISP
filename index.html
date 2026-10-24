@@ -3,58 +3,78 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="ISP Monitoring frontend foundation">
-  <meta name="theme-color" content="#0b1220">
-  <title>ISP Monitoring — Frontend Foundation</title>
+  <meta name="description" content="ISP Monitoring frontend application shell">
+  <meta name="theme-color" content="#070b14">
+  <title>ISP Monitoring — Command Center</title>
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
-  <div class="app-shell">
-    <aside class="sidebar" id="sidebar">
-      <div class="brand"><span class="brand-mark">ISP</span><span><strong>Network NOC</strong><small>Frontend Foundation</small></span></div>
-      <nav class="nav" aria-label="Primary navigation">
-        <a class="nav-item active" href="#dashboard">⌂ <span>Command Center</span></a>
-        <a class="nav-item" href="#topology">⌘ <span>Topology</span></a>
-        <a class="nav-item" href="#map">⌖ <span>Network Map</span></a>
-        <a class="nav-item" href="#devices">▣ <span>Devices</span></a>
-        <a class="nav-item" href="#alerts">! <span>Alerts</span></a>
-        <a class="nav-item" href="#analytics">◫ <span>Analytics</span></a>
+  <div class="app-shell" id="appShell">
+    <aside class="sidebar" id="sidebar" aria-label="Primary navigation">
+      <div class="brand"><span class="brand-mark">ISP</span><span><strong>Network NOC</strong><small>Monitoring Console</small></span></div>
+      <div class="sidebar-section-label">Workspace</div>
+      <nav class="nav" id="primaryNav">
+        <a class="nav-item active" href="#dashboard" data-route="dashboard"><span class="nav-icon">⌂</span><span>Command Center</span></a>
+        <a class="nav-item" href="#topology" data-route="topology"><span class="nav-icon">⌘</span><span>Topology</span></a>
+        <a class="nav-item" href="#map" data-route="map"><span class="nav-icon">⌖</span><span>Network Map</span></a>
+        <a class="nav-item" href="#devices" data-route="devices"><span class="nav-icon">▣</span><span>Devices</span></a>
+        <a class="nav-item" href="#alerts" data-route="alerts"><span class="nav-icon">!</span><span>Alerts</span><span class="nav-count">3</span></a>
+        <a class="nav-item" href="#analytics" data-route="analytics"><span class="nav-icon">◫</span><span>Analytics</span></a>
       </nav>
-      <div class="sidebar-footer"><span class="status-dot"></span> Frontend foundation ready</div>
+      <div class="sidebar-section-label">System</div>
+      <nav class="nav">
+        <a class="nav-item" href="#reports" data-route="reports"><span class="nav-icon">▤</span><span>Reports</span></a>
+        <a class="nav-item" href="#system" data-route="system"><span class="nav-icon">⚙</span><span>System</span></a>
+      </nav>
+      <div class="sidebar-footer"><span class="status-dot"></span><span>Frontend shell online</span></div>
     </aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop" aria-hidden="true"></div>
 
     <main class="main">
       <header class="topbar">
-        <button class="icon-button" id="menuButton" aria-label="Toggle navigation">☰</button>
-        <div><span class="eyebrow">ISP MONITORING</span><h1>Command Center</h1></div>
-        <div class="topbar-actions"><button class="search" id="searchButton">⌕ <span>Search</span><kbd>/</kbd></button><button class="icon-button" aria-label="Notifications">◉</button><div class="avatar">UN</div></div>
+        <div class="topbar-left">
+          <button class="icon-button mobile-only" id="menuButton" aria-label="Open navigation" aria-expanded="false">☰</button>
+          <button class="icon-button desktop-only" id="sidebarToggle" aria-label="Collapse navigation" aria-pressed="false">≡</button>
+          <div class="page-heading"><span class="eyebrow">ISP MONITORING / NOC</span><h1 id="pageTitle">Command Center</h1></div>
+        </div>
+        <div class="topbar-actions">
+          <button class="search" id="searchButton" aria-label="Open global search"><span>⌕</span><span>Search anything</span><kbd>/</kbd></button>
+          <button class="icon-button notification-trigger" id="notificationButton" aria-label="Open notifications" aria-expanded="false">◉<span class="notification-dot"></span></button>
+          <div class="user-menu" id="userMenu"><button class="avatar-button" id="userButton" aria-expanded="false" aria-label="Open user menu"><span class="avatar">UN</span><span class="user-label">NOC Admin</span><span>⌄</span></button><div class="popover user-popover" id="userPopover"><strong>NOC Admin</strong><span>Frontend workspace</span><button data-action="profile">Profile</button><button data-action="settings">Settings</button></div></div>
+        </div>
       </header>
 
-      <section class="content" id="dashboard">
-        <div class="hero-row"><div><p class="eyebrow">FOUNDATION / V1</p><h2>Network visibility, designed for scale.</h2><p class="muted">The frontend foundation is now structured for the upcoming NOC modules.</p></div><div class="badge success"><span class="status-dot"></span> UI system online</div></div>
-
+      <section class="content" id="dashboard" data-view="dashboard">
+        <div class="hero-row"><div><p class="eyebrow">COMMAND CENTER / V1</p><h2>Network visibility, designed for scale.</h2><p class="muted">Application shell is ready for the monitoring modules that follow.</p></div><div class="badge success"><span class="status-dot"></span> Shell online</div></div>
         <div class="kpi-grid">
           <article class="card kpi"><span class="label">Network Health</span><strong>98.7%</strong><span class="trend up">↑ 2.4% today</span></article>
           <article class="card kpi"><span class="label">MikroTik</span><strong>12 / 12</strong><span class="muted">routers online</span></article>
           <article class="card kpi"><span class="label">OLT / PON</span><strong>8 / 8</strong><span class="muted">systems online</span></article>
           <article class="card kpi"><span class="label">ONU Online</span><strong>1,842</strong><span class="trend up">↑ 18 today</span></article>
         </div>
-
         <div class="grid-2">
-          <article class="card panel"><div class="panel-head"><div><span class="eyebrow">DESIGN SYSTEM</span><h3>Core tokens</h3></div><span class="badge">Foundation</span></div><div class="token-list"><div><span class="swatch primary"></span><span>Primary</span><code>--color-primary</code></div><div><span class="swatch surface"></span><span>Surface</span><code>--color-surface</code></div><div><span class="swatch success"></span><span>Success</span><code>--color-success</code></div><div><span class="swatch danger"></span><span>Critical</span><code>--color-danger</code></div></div></article>
-          <article class="card panel"><div class="panel-head"><div><span class="eyebrow">LAYOUT</span><h3>Responsive grid</h3></div><span class="badge success">Ready</span></div><div class="demo-grid"><span>Sidebar</span><span>Workspace</span><span>Panels</span><span>Tables</span></div></article>
+          <article class="card panel"><div class="panel-head"><div><span class="eyebrow">APPLICATION SHELL</span><h3>Global navigation</h3></div><span class="badge success">Ready</span></div><p class="muted">Route-aware sidebar, responsive mobile drawer, global search, notifications and user controls are wired into the frontend shell.</p></article>
+          <article class="card panel"><div class="panel-head"><div><span class="eyebrow">KEYBOARD</span><h3>Command access</h3></div><span class="badge">Press /</span></div><p class="muted">Use <kbd>/</kbd> to open global search and <kbd>Esc</kbd> to close active overlays.</p></article>
         </div>
-
-        <article class="card panel roadmap"><div class="panel-head"><div><span class="eyebrow">BUILD STATUS</span><h3>Frontend Foundation</h3></div><span class="badge success">Step 01 / 15</span></div><div class="progress"><span style="width:100%"></span></div><div class="steps"><div class="step done"><b>01</b><span>Foundation</span></div><div class="step"><b>02</b><span>Application Shell</span></div><div class="step"><b>03</b><span>Command Center</span></div><div class="step"><b>04</b><span>Topology</span></div><div class="step"><b>05</b><span>Network Map</span></div></div></article>
+        <article class="card panel roadmap"><div class="panel-head"><div><span class="eyebrow">BUILD STATUS</span><h3>Frontend Foundation + Application Shell</h3></div><span class="badge success">Steps 01–02</span></div><div class="progress"><span style="width:100%"></span></div><div class="steps"><div class="step done"><b>01</b><span>Foundation</span></div><div class="step done"><b>02</b><span>Application Shell</span></div><div class="step"><b>03</b><span>Command Center</span></div><div class="step"><b>04</b><span>Topology</span></div><div class="step"><b>05</b><span>Network Map</span></div></div></article>
       </section>
-
-      <footer class="footer">ISP Monitoring • Frontend Foundation V1 • <span>UI-only prototype layer</span></footer>
+      <footer class="footer">ISP Monitoring • Frontend Steps 01–02 • <span>UI-only prototype layer</span></footer>
     </main>
   </div>
-  <div class="toast" id="toast" role="status">Frontend foundation loaded.</div>
+
+  <div class="popover notification-popover" id="notificationPopover" role="dialog" aria-label="Notifications"><div class="popover-head"><strong>Notifications</strong><button class="text-button" data-action="mark-read">Mark all read</button></div><div class="notification-item critical"><span class="status-dot"></span><div><strong>3 active alerts</strong><small>Review from Alert Center</small></div></div><div class="notification-item"><span class="status-dot info"></span><div><strong>Shell initialized</strong><small>Application shell is ready</small></div></div></div>
+  <div class="command-overlay" id="commandOverlay" hidden><div class="command-dialog" role="dialog" aria-modal="true" aria-label="Global search"><div class="command-search"><span>⌕</span><input id="commandInput" type="search" placeholder="Search navigation, modules, actions…" autocomplete="off"><kbd>Esc</kbd></div><div class="command-results" id="commandResults"></div><div class="command-footer"><span>↑↓ Navigate</span><span>Enter Open</span><span>Esc Close</span></div></div></div>
+  <div class="toast" id="toast" role="status">Application shell loaded.</div>
+  <script src="js/state.js"></script>
+  <script src="js/router.js"></script>
+  <script src="js/components/sidebar.js"></script>
+  <script src="js/components/topbar.js"></script>
+  <script src="js/components/notifications.js"></script>
+  <script src="js/components/command-palette.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
