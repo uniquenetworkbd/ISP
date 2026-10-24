@@ -6,14 +6,17 @@
 @import url('./interface.css');
 @import url('./alerts.css');
 @import url('./analytics.css');
+@import url('./management.css');
 
 /* Global visual stabilization layer */
 *,*::before,*::after{box-sizing:border-box}
-html{min-width:320px;overflow-x:hidden}
+html{min-width:320px;overflow-x:hidden;scroll-behavior:smooth}
 body{min-width:320px;overflow-x:hidden}
 img,svg,video,canvas{max-width:100%}
 button,input,select,textarea{font:inherit}
-button{max-width:100%}
+button{max-width:100%;touch-action:manipulation}
+button,a,input,select,textarea{outline-offset:3px}
+:focus-visible{outline:2px solid var(--color-primary,#38bdf8);outline-offset:3px}
 .main,.content,.panel,.card,.command-panel,.topology-workspace,.topology-canvas,.topology-details{min-width:0}
 .content{width:100%;overflow:visible}
 .hero-row h2,.hero-row h3,.panel h3,.card h3{overflow-wrap:anywhere}
@@ -38,8 +41,14 @@ pre{max-width:100%;overflow:auto}
 .command-grid>*{min-width:0}
 
 /* Topology is a visual workspace: scroll inside the canvas rather than the page. */
-.topology-canvas{max-width:100%;overflow:auto}
+.topology-canvas{max-width:100%;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .topology-stage{min-width:760px}
+
+/* Consistent touch targets for compact controls. */
+.icon-button,.filter-button,.topology-filter,.section-tab,.row-action,.system-action{min-height:36px}
+
+/* Keep state changes understandable without color alone. */
+.status-dot,.legend-dot,.legend-node,.legend-link{flex:0 0 auto}
 
 @media(max-width:1100px){
   .content{padding:28px clamp(18px,3vw,30px)}
@@ -78,7 +87,7 @@ pre{max-width:100%;overflow:auto}
   .page-heading .eyebrow{font-size:.52rem}
   .panel-head{gap:10px}
   .panel-head .badge{margin-left:0}
-  .table-wrap,.data-table-wrap,.table-container,.table-scroll{max-width:100%;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch}
+  .table-wrap,.data-table-wrap,.table-container,.table-scroll,.management-table-wrap,.audit-table-wrap{max-width:100%;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch}
   table{min-width:620px}
 }
 
@@ -90,4 +99,9 @@ pre{max-width:100%;overflow:auto}
   .card,.panel{border-radius:12px}
   .kpi-value{font-size:1.55rem}
   .topology-stage{min-width:680px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{scroll-behavior:auto!important;transition-duration:0.01ms!important;animation-duration:0.01ms!important;animation-iteration-count:1!important}
 }
