@@ -1,16 +1,16 @@
-/* Step 04 — Interactive Topology / V1.1 */
+/* Step 04 — Interactive Topology / V1.2 */
 .topology-page{display:grid;gap:var(--space-5)}
 .topology-toolbar{display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);flex-wrap:wrap}
 .topology-filters{display:flex;gap:8px;flex-wrap:wrap}
-.topology-filter,.topology-view-controls button{border:1px solid var(--border-subtle);background:var(--surface-2);color:var(--text);border-radius:var(--radius-md);padding:8px 12px;cursor:pointer;transition:border-color .18s ease,background .18s ease,transform .18s ease}
-.topology-filter:hover,.topology-view-controls button:hover{border-color:var(--primary);transform:translateY(-1px)}
+.topology-filter,.topology-view-controls button,.topology-detail-actions button{border:1px solid var(--border-subtle);background:var(--surface-2);color:var(--text);border-radius:var(--radius-md);padding:8px 12px;cursor:pointer;transition:border-color .18s ease,background .18s ease,transform .18s ease,opacity .18s ease}
+.topology-filter:hover,.topology-view-controls button:hover,.topology-detail-actions button:hover{border-color:var(--primary);transform:translateY(-1px)}
 .topology-filter.active{border-color:var(--primary);background:var(--surface-3)}
-.topology-view-controls{display:flex;align-items:center;gap:6px;margin-left:auto}
+.topology-view-controls{display:flex;align-items:center;gap:6px;margin-left:auto;flex-wrap:wrap}
 .topology-view-controls button{min-width:38px;padding:7px 10px;font-weight:700}
 .topology-workspace{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:var(--space-4);min-width:0}
 .topology-canvas{position:relative;min-height:560px;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y;background:radial-gradient(circle at 50% 20%,rgba(56,189,248,.08),transparent 38%),var(--surface-1);border:1px solid var(--border-subtle);border-radius:var(--radius-lg)}
 .topology-stage{position:relative;width:900px;min-width:900px;height:540px;margin:0 auto;transform-origin:top left;transition:transform .18s ease}
-.topology-links{position:absolute;inset:0;width:900px;height:540px;pointer-events:none;overflow:visible}
+.topology-links{position:absolute;inset:0;width:900px;height:100%;pointer-events:none;overflow:visible}
 .topology-link{stroke:var(--border-strong);stroke-width:3;fill:none;vector-effect:non-scaling-stroke;transition:stroke .18s ease,stroke-width .18s ease,opacity .18s ease}
 .topology-link.active{stroke:var(--primary);stroke-width:4;filter:drop-shadow(0 0 4px rgba(56,189,248,.28))}
 .topology-link-warning{stroke:var(--warning)}
@@ -23,36 +23,14 @@
 .topology-node .node-type{display:block;color:var(--text-muted);font-size:.68rem;text-transform:uppercase;letter-spacing:.08em}
 .topology-node strong{display:block;margin-top:4px;font-size:.9rem;overflow-wrap:anywhere}
 .topology-node small{display:block;margin-top:6px;color:var(--text-muted);font-size:.72rem;overflow-wrap:anywhere}
-.node-status{display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-size:.72rem}
-.node-status .status-dot{width:7px;height:7px}
-.topology-details{align-self:start;min-width:0}
-.topology-details .detail-value{font-size:1.05rem;font-weight:750;margin-top:4px}
-.topology-details dl{display:grid;gap:12px;margin:18px 0 0}
-.topology-details dt{color:var(--text-muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em}
-.topology-details dd{margin:3px 0 0;font-size:.85rem;overflow-wrap:anywhere}
-.topology-legend{display:flex;gap:16px;flex-wrap:wrap;color:var(--text-muted);font-size:.75rem}
-.topology-legend span{display:inline-flex;align-items:center;gap:6px}
-.legend-node{width:8px;height:8px;border-radius:50%;background:var(--success)}
-.legend-link{width:18px;height:2px;background:var(--border-strong)}
-
-@media (max-width:1000px){
-  .topology-workspace{grid-template-columns:1fr}
-  .topology-details{width:100%}
-  .topology-view-controls{margin-left:0}
-}
-
-@media (max-width:760px){
-  .topology-toolbar{align-items:flex-start}
-  .topology-filters{width:100%;overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px}
-  .topology-filter{flex:0 0 auto}
-  .topology-view-controls{width:100%;justify-content:flex-end}
-  .topology-canvas{min-height:500px}
-  .topology-stage{margin-left:12px;margin-right:12px}
-}
-
-@media (max-width:480px){
-  .topology-canvas{min-height:480px;border-radius:12px}
-  .topology-stage{margin-left:8px}
-  .topology-node{width:148px;padding:12px}
-  .topology-view-controls button{padding:7px 9px}
-}
+.node-status{display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-size:.72rem}.node-status .status-dot{width:7px;height:7px}
+.node-branch-toggle{position:absolute;right:10px;top:9px;display:grid;place-items:center;width:20px;height:20px;border:1px solid var(--border-subtle);border-radius:6px;color:var(--text-muted);font-size:.8rem}
+.topology-details{align-self:start;min-width:0}.topology-details .detail-value{font-size:1.05rem;font-weight:750;margin-top:4px}.topology-details dl{display:grid;gap:12px;margin:18px 0 0}.topology-details dt{color:var(--text-muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em}.topology-details dd{margin:3px 0 0;font-size:.85rem;overflow-wrap:anywhere}
+.topology-detail-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.topology-detail-actions button{font-size:.75rem;padding:7px 9px}.topology-detail-actions button:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.topology-state{grid-column:1/-1;padding:14px 16px;border:1px solid var(--border-subtle);border-radius:var(--radius-md);background:var(--surface-2);color:var(--text-muted)}
+.topology-state[data-state="error"]{border-color:color-mix(in srgb,var(--danger) 55%,var(--border-subtle));color:var(--danger)}
+.topology-state[data-state="empty"]{border-color:color-mix(in srgb,var(--warning) 55%,var(--border-subtle));color:var(--warning)}
+.topology-legend{display:flex;gap:16px;flex-wrap:wrap;color:var(--text-muted);font-size:.75rem}.topology-legend span{display:inline-flex;align-items:center;gap:6px}.legend-node{width:8px;height:8px;border-radius:50%;background:var(--success)}.legend-link{width:18px;height:2px;background:var(--border-strong)}
+@media (max-width:1000px){.topology-workspace{grid-template-columns:1fr}.topology-details{width:100%}.topology-view-controls{margin-left:0}}
+@media (max-width:760px){.topology-toolbar{align-items:flex-start}.topology-filters{width:100%;overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px}.topology-filter{flex:0 0 auto}.topology-view-controls{width:100%;justify-content:flex-end}.topology-canvas{min-height:500px}.topology-stage{margin-left:12px;margin-right:12px}}
+@media (max-width:480px){.topology-canvas{min-height:480px;border-radius:12px}.topology-stage{margin-left:8px}.topology-node{width:148px;padding:12px}.topology-view-controls{justify-content:flex-start}.topology-view-controls button{padding:7px 9px}.topology-detail-actions button{flex:1 1 auto}}
