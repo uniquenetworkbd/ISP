@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="ISP Monitoring frontend foundation">
+  <meta name="theme-color" content="#0b1220">
+  <title>ISP Monitoring — Frontend Foundation</title>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand"><span class="brand-mark">ISP</span><span><strong>Network NOC</strong><small>Frontend Foundation</small></span></div>
+      <nav class="nav" aria-label="Primary navigation">
+        <a class="nav-item active" href="#dashboard">⌂ <span>Command Center</span></a>
+        <a class="nav-item" href="#topology">⌘ <span>Topology</span></a>
+        <a class="nav-item" href="#map">⌖ <span>Network Map</span></a>
+        <a class="nav-item" href="#devices">▣ <span>Devices</span></a>
+        <a class="nav-item" href="#alerts">! <span>Alerts</span></a>
+        <a class="nav-item" href="#analytics">◫ <span>Analytics</span></a>
+      </nav>
+      <div class="sidebar-footer"><span class="status-dot"></span> Frontend foundation ready</div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="icon-button" id="menuButton" aria-label="Toggle navigation">☰</button>
+        <div><span class="eyebrow">ISP MONITORING</span><h1>Command Center</h1></div>
+        <div class="topbar-actions"><button class="search" id="searchButton">⌕ <span>Search</span><kbd>/</kbd></button><button class="icon-button" aria-label="Notifications">◉</button><div class="avatar">UN</div></div>
+      </header>
+
+      <section class="content" id="dashboard">
+        <div class="hero-row"><div><p class="eyebrow">FOUNDATION / V1</p><h2>Network visibility, designed for scale.</h2><p class="muted">The frontend foundation is now structured for the upcoming NOC modules.</p></div><div class="badge success"><span class="status-dot"></span> UI system online</div></div>
+
+        <div class="kpi-grid">
+          <article class="card kpi"><span class="label">Network Health</span><strong>98.7%</strong><span class="trend up">↑ 2.4% today</span></article>
+          <article class="card kpi"><span class="label">MikroTik</span><strong>12 / 12</strong><span class="muted">routers online</span></article>
+          <article class="card kpi"><span class="label">OLT / PON</span><strong>8 / 8</strong><span class="muted">systems online</span></article>
+          <article class="card kpi"><span class="label">ONU Online</span><strong>1,842</strong><span class="trend up">↑ 18 today</span></article>
+        </div>
+
+        <div class="grid-2">
+          <article class="card panel"><div class="panel-head"><div><span class="eyebrow">DESIGN SYSTEM</span><h3>Core tokens</h3></div><span class="badge">Foundation</span></div><div class="token-list"><div><span class="swatch primary"></span><span>Primary</span><code>--color-primary</code></div><div><span class="swatch surface"></span><span>Surface</span><code>--color-surface</code></div><div><span class="swatch success"></span><span>Success</span><code>--color-success</code></div><div><span class="swatch danger"></span><span>Critical</span><code>--color-danger</code></div></div></article>
+          <article class="card panel"><div class="panel-head"><div><span class="eyebrow">LAYOUT</span><h3>Responsive grid</h3></div><span class="badge success">Ready</span></div><div class="demo-grid"><span>Sidebar</span><span>Workspace</span><span>Panels</span><span>Tables</span></div></article>
+        </div>
+
+        <article class="card panel roadmap"><div class="panel-head"><div><span class="eyebrow">BUILD STATUS</span><h3>Frontend Foundation</h3></div><span class="badge success">Step 01 / 15</span></div><div class="progress"><span style="width:100%"></span></div><div class="steps"><div class="step done"><b>01</b><span>Foundation</span></div><div class="step"><b>02</b><span>Application Shell</span></div><div class="step"><b>03</b><span>Command Center</span></div><div class="step"><b>04</b><span>Topology</span></div><div class="step"><b>05</b><span>Network Map</span></div></div></article>
+      </section>
+
+      <footer class="footer">ISP Monitoring • Frontend Foundation V1 • <span>UI-only prototype layer</span></footer>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status">Frontend foundation loaded.</div>
+  <script src="js/app.js"></script>
+</body>
+</html>
