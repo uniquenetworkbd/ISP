@@ -2,6 +2,7 @@ window.ISPApp = window.ISPApp || {};
 (function(){
   function loadStyle(href,key){if(document.querySelector(`link[data-${key}]`))return;const link=document.createElement('link');link.rel='stylesheet';link.href=href;link.dataset[key]='true';document.head.appendChild(link);}
   loadStyle('css/visual-system.css','visual-system');
+  loadStyle('css/noc-enhancements.css','noc-enhancements');
 
   function toast(message){const el=document.getElementById('toast');if(!el)return;el.textContent=message;el.classList.add('show');clearTimeout(window.ISPApp._toastTimer);window.ISPApp._toastTimer=setTimeout(()=>el.classList.remove('show'),2200);}
   window.ISPApp.toast=toast;
@@ -17,5 +18,6 @@ window.ISPApp = window.ISPApp || {};
   function loadManagement(){load('js/components/management-ui.js','management-ui');}
   function loadReports(){load('js/components/reports-ui.js','reports-ui');}
   function loadFinalizer(){load('js/components/frontend-finalizer.js','frontend-finalizer');}
-  window.addEventListener('DOMContentLoaded',()=>{loadNetworkMap();loadMikrotik();loadOlt();loadOnu();loadInterfaces();loadAlerts();loadAnalytics();loadNavigationArchitecture();loadManagement();loadReports();loadFinalizer();toast('Application shell loaded.');});
+  function loadNocEnhancements(){load('js/components/noc-enhancements.js','noc-enhancements');}
+  window.addEventListener('DOMContentLoaded',()=>{loadNetworkMap();loadMikrotik();loadOlt();loadOnu();loadInterfaces();loadAlerts();loadAnalytics();loadNavigationArchitecture();loadManagement();loadReports();loadFinalizer();loadNocEnhancements();toast('Application shell loaded.');});
 })();
