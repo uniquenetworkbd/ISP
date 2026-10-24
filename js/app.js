@@ -8,5 +8,6 @@ window.ISPApp = window.ISPApp || {};
   function loadOlt(){load('js/components/olt-dashboard.js','olt-dashboard');}
   function loadOnu(){load('js/components/onu-dashboard.js','onu-dashboard');}
   function loadInterfaces(){load('js/components/interface-monitoring.js','interface-monitoring');}
-  window.addEventListener('DOMContentLoaded',()=>{loadNetworkMap();loadMikrotik();loadOlt();loadOnu();loadInterfaces();toast('Application shell loaded.');});
+  function loadAlerts(){load('js/components/alert-center.js','alert-center');}
+  window.addEventListener('DOMContentLoaded',()=>{loadNetworkMap();loadMikrotik();loadOlt();loadOnu();loadInterfaces();loadAlerts();toast('Application shell loaded.');});
 })();
