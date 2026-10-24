@@ -12,18 +12,22 @@
 | 08 | ONU Monitoring | Complete |
 | 09 | Interface Monitoring | Complete |
 | 10 | Alert Center | Complete |
-| 11 | Analytics & Reports | Planned |
+| 11 | Analytics & Reports | Complete |
 | 12 | Device Management + System UI | Planned |
 | 13 | Final UI Integration | Planned |
 | 14 | Responsive + UX Polish | Planned |
 | 15 | Final Frontend QA | Planned |
 
-## Step 10 scope
+## Step 11 scope
 
-Alert Center provides a frontend investigation layer for Critical, Warning and Info events with Open/Acknowledged/Resolved state, severity/status filters, search, and selected-alert investigation context covering source device, zone, event type, time, path and recommended action.
+Analytics & Reports provides a frontend analysis layer for aggregate traffic trends, layer health, zone comparison and report-ready summaries. It includes period filters, trend visualization, zone performance tables and report preview actions.
 
 ## Data boundary
 
-The current application remains frontend-only. Alert records in Step 10 are representative demonstration data. Acknowledge/Resolve actions change only browser-side demonstration state; no backend, database, RouterOS, OLT/ONU, API, WebSocket or notification service is connected.
+The current application remains frontend-only. Step 11 metrics and report previews use representative demonstration values. No backend, database, RouterOS, OLT/ONU, API, WebSocket or scheduled reporting service is connected.
 
-The UI structure is intentionally backend-ready so a later data layer can map real events into the same alert model without redesigning the information architecture.
+The information architecture is intentionally backend-ready so a later data layer can map real interface, router, optical, ONU and alert telemetry into the same analytics views without redesigning the UI structure.
+
+## Evidence model
+
+RouterOS supports historical graphing for interface traffic and system resources, while interface statistics expose RX/TX packets, queue drops and link-down counters; these concepts inform the frontend analytics model. citeturn0search0turn0search1
