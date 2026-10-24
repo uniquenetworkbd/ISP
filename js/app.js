@@ -7,5 +7,6 @@ window.ISPApp = window.ISPApp || {};
   function loadMikrotik(){load('js/components/mikrotik-dashboard.js','mikrotik-dashboard');}
   function loadOlt(){load('js/components/olt-dashboard.js','olt-dashboard');}
   function loadOnu(){load('js/components/onu-dashboard.js','onu-dashboard');}
-  window.addEventListener('DOMContentLoaded',()=>{loadNetworkMap();loadMikrotik();loadOlt();loadOnu();toast('Application shell loaded.');});
+  function loadInterfaces(){load('js/components/interface-monitoring.js','interface-monitoring');}
+  window.addEventListener('DOMContentLoaded',()=>{loadNetworkMap();loadMikrotik();loadOlt();loadOnu();loadInterfaces();toast('Application shell loaded.');});
 })();
