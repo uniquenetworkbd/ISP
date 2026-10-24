@@ -105,6 +105,32 @@ Sections + Components
 Future Data Adapter
 ```
 
+## Navigation implementation
+
+The sidebar now follows the page groups defined above:
+
+```text
+Command
+  Command Center
+Visualization
+  Topology
+  Network Map
+Infrastructure Monitoring
+  MikroTik
+  OLT / PON
+  ONU Monitoring
+  Interfaces
+Operations
+  Alerts
+  Analytics
+  Reports
+Management
+  Devices
+  System
+```
+
+The grouping is applied by `js/components/navigation-architecture.js` after all feature navigation items are available. This allows dynamically loaded monitoring modules to remain independent while the shared shell presents one consistent navigation hierarchy. The command palette is aligned to the same route map.
+
 ## Data boundary
 
 The current project remains frontend-only. Current dashboards contain representative demonstration values. No backend, database, RouterOS, OLT/ONU, API, WebSocket or scheduled telemetry service is connected.
@@ -138,8 +164,9 @@ Steps 01–11 are retained as completed implementation layers. This architecture
 - Step 09 → Interface page
 - Step 10 → Alert Center page
 - Step 11 → Analytics & Reports operations layer
+- Step 11A → Page navigation architecture implementation
 - Step 12 → Device Management + System UI
 
 ## Completion gate before Step 12
 
-The page architecture is now defined. Step 12 can proceed without changing the fundamental application shell or page hierarchy.
+The page architecture and shared navigation hierarchy are now defined and implemented. Step 12 can proceed without changing the fundamental application shell or page hierarchy.
