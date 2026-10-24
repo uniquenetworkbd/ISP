@@ -9,5 +9,6 @@ window.ISPApp = window.ISPApp || {};
   function loadOnu(){load('js/components/onu-dashboard.js','onu-dashboard');}
   function loadInterfaces(){load('js/components/interface-monitoring.js','interface-monitoring');}
   function loadAlerts(){load('js/components/alert-center.js','alert-center');}
-  window.addEventListener('DOMContentLoaded',()=>{loadNetworkMap();loadMikrotik();loadOlt();loadOnu();loadInterfaces();loadAlerts();toast('Application shell loaded.');});
+  function loadAnalytics(){load('js/components/analytics-reports.js','analytics-reports');}
+  window.addEventListener('DOMContentLoaded',()=>{loadNetworkMap();loadMikrotik();loadOlt();loadOnu();loadInterfaces();loadAlerts();loadAnalytics();toast('Application shell loaded.');});
 })();
