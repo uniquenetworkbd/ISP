@@ -1,6 +1,19 @@
 window.ISPApp = window.ISPApp || {};
 (function(){
-  const items=[['dashboard','Command Center','Network overview'],['topology','Topology','Core to customer topology'],['map','Network Map','Zones and POPs'],['devices','Devices','Device inventory'],['alerts','Alerts','Active network alerts'],['analytics','Analytics','Performance analytics'],['reports','Reports','Reports workspace'],['system','System','System settings']];
+  const items=[
+    ['dashboard','Command Center','Network overview'],
+    ['topology','Topology','Core to customer topology'],
+    ['map','Network Map','Zones and POPs'],
+    ['mikrotik','MikroTik','Router fleet monitoring'],
+    ['olt','OLT / PON','Optical access monitoring'],
+    ['onu','ONU Monitoring','Subscriber endpoint health'],
+    ['interfaces','Interfaces','Traffic and interface health'],
+    ['alerts','Alerts','Active network alerts'],
+    ['analytics','Analytics','Performance analytics'],
+    ['reports','Reports','Report workspace'],
+    ['devices','Devices','Device management'],
+    ['system','System','System management']
+  ];
   function init(){const overlay=document.getElementById('commandOverlay'),input=document.getElementById('commandInput'),results=document.getElementById('commandResults'); if(!overlay)return; let selected=0,filtered=items;
     function render(){results.innerHTML=filtered.map((x,i)=>`<button class="command-result ${i===selected?'active':''}" data-command-route="${x[0]}"><span>${i===selected?'›':'·'}</span><span><strong>${x[1]}</strong><small>${x[2]}</small></span></button>`).join('');results.querySelectorAll('[data-command-route]').forEach(b=>b.addEventListener('click',()=>{window.ISPApp.router.go(b.dataset.commandRoute);close();}));}
     function open(){overlay.hidden=false;input.value='';filtered=items;selected=0;render();setTimeout(()=>input.focus(),0);}
