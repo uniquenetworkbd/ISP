@@ -1,0 +1,32 @@
+/* Step 04 — Interactive Topology */
+.topology-page{display:grid;gap:var(--space-5)}
+.topology-toolbar{display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);flex-wrap:wrap}
+.topology-filters{display:flex;gap:8px;flex-wrap:wrap}
+.topology-filter{border:1px solid var(--border-subtle);background:var(--surface-2);color:var(--text);border-radius:var(--radius-md);padding:8px 12px;cursor:pointer}
+.topology-filter.active{border-color:var(--primary);background:var(--surface-3)}
+.topology-workspace{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:var(--space-4);min-width:0}
+.topology-canvas{position:relative;min-height:560px;overflow:auto;background:radial-gradient(circle at 50% 20%,rgba(56,189,248,.08),transparent 38%),var(--surface-1);border:1px solid var(--border-subtle);border-radius:var(--radius-lg)}
+.topology-stage{position:relative;width:900px;min-height:540px;margin:0 auto}
+.topology-links{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.topology-link{stroke:var(--border-strong);stroke-width:3;fill:none}
+.topology-link.active{stroke:var(--primary);stroke-width:4}
+.topology-node{position:absolute;width:154px;padding:14px;border:1px solid var(--border-subtle);border-radius:var(--radius-md);background:var(--surface-2);color:var(--text);text-align:left;cursor:pointer;box-shadow:0 10px 24px rgba(0,0,0,.16)}
+.topology-node:hover,.topology-node:focus-visible{border-color:var(--primary);outline:none}
+.topology-node.selected{border-color:var(--primary);box-shadow:0 0 0 2px rgba(56,189,248,.18)}
+.topology-node .node-type{display:block;color:var(--text-muted);font-size:.68rem;text-transform:uppercase;letter-spacing:.08em}
+.topology-node strong{display:block;margin-top:4px;font-size:.9rem}
+.topology-node small{display:block;margin-top:6px;color:var(--text-muted);font-size:.72rem}
+.node-status{display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-size:.72rem}
+.node-status .status-dot{width:7px;height:7px}
+.node-core{left:373px;top:34px}.node-switch{left:373px;top:150px}.node-olt1{left:150px;top:270px}.node-olt2{left:373px;top:270px}.node-olt3{left:596px;top:270px}.node-onu1{left:48px;top:430px}.node-onu2{left:245px;top:430px}.node-onu3{left:442px;top:430px}.node-customer{left:639px;top:430px}
+.topology-details{align-self:start}
+.topology-details .detail-value{font-size:1.05rem;font-weight:750;margin-top:4px}
+.topology-details dl{display:grid;gap:12px;margin:18px 0 0}
+.topology-details dt{color:var(--text-muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em}
+.topology-details dd{margin:3px 0 0;font-size:.85rem}
+.topology-legend{display:flex;gap:16px;flex-wrap:wrap;color:var(--text-muted);font-size:.75rem}
+.topology-legend span{display:inline-flex;align-items:center;gap:6px}
+.legend-node{width:8px;height:8px;border-radius:50%;background:var(--success)}
+.legend-link{width:18px;height:2px;background:var(--border-strong)}
+@media (max-width:1000px){.topology-workspace{grid-template-columns:1fr}.topology-details{width:100%}}
+@media (max-width:640px){.topology-canvas{min-height:480px}.topology-stage{transform:scale(.78);transform-origin:top left;margin:0;width:900px}.topology-toolbar{align-items:flex-start}}

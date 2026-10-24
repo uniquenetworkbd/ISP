@@ -1,16 +1,7 @@
-const menuButton=document.getElementById('menuButton');
-const sidebar=document.getElementById('sidebar');
-const toast=document.getElementById('toast');
-menuButton?.addEventListener('click',()=>sidebar?.classList.toggle('open'));
-document.querySelectorAll('.nav-item').forEach(link=>link.addEventListener('click',()=>sidebar?.classList.remove('open')));
-document.getElementById('searchButton')?.addEventListener('click',()=>{
-  toast.classList.add('show');
-  toast.textContent='Global search is reserved for the Application Shell step.';
-  setTimeout(()=>toast.classList.remove('show'),2200);
-});
-window.addEventListener('keydown',event=>{
-  if(event.key==='/' && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)){
-    event.preventDefault();
-    document.getElementById('searchButton')?.focus();
-  }
-});
+window.ISPApp = window.ISPApp || {};
+(function(){
+  function toast(message){const el=document.getElementById('toast');if(!el)return;el.textContent=message;el.classList.add('show');clearTimeout(window.ISPApp._toastTimer);window.ISPApp._toastTimer=setTimeout(()=>el.classList.remove('show'),2200);}
+  window.ISPApp.toast=toast;
+  function loadNetworkMap(){if(document.querySelector('script[data-network-map]'))return;const script=document.createElement('script');script.src='js/components/network-map.js';script.dataset.networkMap='true';document.body.appendChild(script);}
+  window.addEventListener('DOMContentLoaded',()=>{loadNetworkMap();toast('Application shell loaded.');});
+})();

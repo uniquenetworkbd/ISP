@@ -1,18 +1,13 @@
-# ISP Frontend Foundation V1
+# ISP Monitoring — Frontend Foundation
 
-## Purpose
-Establish the visual and structural foundation for the ISP Monitoring frontend before feature modules are added.
+## Step 01 — Frontend Foundation
+Complete. The design-token, base, layout, component and documentation foundation is preserved from the foundation branch.
 
-## Current layer
-- Semantic HTML application entrypoint
-- Design tokens
-- Dark NOC visual system
-- Responsive application layout
-- Reusable card, badge, KPI, progress and navigation styles
-- Minimal interaction layer
+## Step 02 — Application Shell
+Complete. The foundation is extended with responsive navigation, route handling, global search/command palette, notifications, user controls and shared shell state.
 
-## Next layer
-Application Shell: complete navigation, command palette, global search, notification surface and mobile navigation.
+## Scope
+Steps 01–02 are frontend-only. They do not include backend services, databases, APIs, SNMP collectors or live network connections.
 
-## Rule
-Feature modules should consume these tokens and components rather than introducing unrelated visual systems.
+## Next
+Step 03 — Command Center.
