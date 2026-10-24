@@ -5,5 +5,6 @@ window.ISPApp = window.ISPApp || {};
   function load(src,key){if(document.querySelector(`script[data-${key}]`))return;const script=document.createElement('script');script.src=src;script.dataset[key]='true';document.body.appendChild(script);}
   function loadNetworkMap(){load('js/components/network-map.js','network-map');}
   function loadMikrotik(){load('js/components/mikrotik-dashboard.js','mikrotik-dashboard');}
-  window.addEventListener('DOMContentLoaded',()=>{loadNetworkMap();loadMikrotik();toast('Application shell loaded.');});
+  function loadOlt(){load('js/components/olt-dashboard.js','olt-dashboard');}
+  window.addEventListener('DOMContentLoaded',()=>{loadNetworkMap();loadMikrotik();loadOlt();toast('Application shell loaded.');});
 })();
