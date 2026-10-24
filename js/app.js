@@ -7,19 +7,36 @@ window.ISPApp = window.ISPApp || {};
 
   function toast(message){const el=document.getElementById('toast');if(!el)return;el.textContent=message;el.classList.add('show');clearTimeout(window.ISPApp._toastTimer);window.ISPApp._toastTimer=setTimeout(()=>el.classList.remove('show'),2200);}
   window.ISPApp.toast=toast;
-  function load(src,key){if(document.querySelector(`script[data-${key}]`))return;const script=document.createElement('script');script.src=src;script.dataset[key]='true';document.body.appendChild(script);}
-  function loadNetworkMap(){load('js/components/network-map.js','network-map');}
-  function loadMikrotik(){load('js/components/mikrotik-dashboard.js','mikrotik-dashboard');}
-  function loadOlt(){load('js/components/olt-dashboard.js','olt-dashboard');}
-  function loadOnu(){load('js/components/onu-dashboard.js','onu-dashboard');}
-  function loadInterfaces(){load('js/components/interface-monitoring.js','interface-monitoring');}
-  function loadAlerts(){load('js/components/alert-center.js','alert-center');}
-  function loadAnalytics(){load('js/components/analytics-reports.js','analytics-reports');}
-  function loadNavigationArchitecture(){load('js/components/navigation-architecture.js','navigation-architecture');}
-  function loadManagement(){load('js/components/management-ui.js','management-ui');}
-  function loadReports(){load('js/components/reports-ui.js','reports-ui');}
-  function loadFinalizer(){load('js/components/frontend-finalizer.js','frontend-finalizer');}
-  function loadNocEnhancements(){load('js/components/noc-enhancements.js','noc-enhancements');}
-  function loadDashboardWorkspace(){load('js/components/dashboard-workspace.js','dashboard-workspace');}
-  window.addEventListener('DOMContentLoaded',()=>{loadNetworkMap();loadMikrotik();loadOlt();loadOnu();loadInterfaces();loadAlerts();loadAnalytics();loadNavigationArchitecture();loadManagement();loadReports();loadFinalizer();loadNocEnhancements();loadDashboardWorkspace();toast('Application shell loaded.');});
+  function load(src,key){if(document.querySelector(`script[data-${key}]`))return null;const script=document.createElement('script');script.src=src;script.dataset[key]='true';document.body.appendChild(script);return script;}
+  function loadShell(){
+    load('js/state.js','state');
+    load('js/router.js','router');
+    load('js/components/sidebar.js','sidebar');
+    load('js/components/topbar.js','topbar');
+    load('js/components/command-palette.js','command-palette');
+    load('js/components/notifications.js','notifications');
+  }
+  function loadModules(){
+    load('js/components/network-map.js','network-map');
+    load('js/components/mikrotik-dashboard.js','mikrotik-dashboard');
+    load('js/components/olt-dashboard.js','olt-dashboard');
+    load('js/components/onu-dashboard.js','onu-dashboard');
+    load('js/components/interface-monitoring.js','interface-monitoring');
+    load('js/components/alert-center.js','alert-center');
+    load('js/components/analytics-reports.js','analytics-reports');
+    load('js/components/navigation-architecture.js','navigation-architecture');
+    load('js/components/management-ui.js','management-ui');
+    load('js/components/reports-ui.js','reports-ui');
+    load('js/components/frontend-finalizer.js','frontend-finalizer');
+    load('js/components/noc-enhancements.js','noc-enhancements');
+    load('js/components/dashboard-workspace.js','dashboard-workspace');
+    requestAnimationFrame(()=>window.ISPApp.router?.apply?.());
+  }
+  function boot(){
+    loadShell();
+    loadModules();
+    window.ISPApp.router?.apply?.();
+    toast('Application shell loaded.');
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();
