@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/topology.css">
   <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
@@ -22,7 +23,7 @@
         <a class="nav-item active" href="#dashboard" data-route="dashboard"><span class="nav-icon">⌂</span><span>Command Center</span></a>
         <a class="nav-item" href="#topology" data-route="topology"><span class="nav-icon">⌘</span><span>Topology</span></a>
         <a class="nav-item" href="#map" data-route="map"><span class="nav-icon">⌖</span><span>Network Map</span></a>
-        <a class="nav-item" href="#devices" data-route="devices"><span class="nav-icon">▣</span><span>Devices</span></a>
+        <a class="nav-item" href="#devices" data-route="devices"><span class="nav-icon">▣</span><span>Devices</span><span class="nav-count">12</span></a>
         <a class="nav-item" href="#alerts" data-route="alerts"><span class="nav-icon">!</span><span>Alerts</span><span class="nav-count">3</span></a>
         <a class="nav-item" href="#analytics" data-route="analytics"><span class="nav-icon">◫</span><span>Analytics</span></a>
       </nav>
@@ -51,29 +52,46 @@
 
       <section class="content command-center" id="dashboard" data-view="dashboard">
         <div class="hero-row"><div><p class="eyebrow">COMMAND CENTER / V1</p><h2>Network visibility, designed for scale.</h2><p class="muted">Live-ready command center interface with a structured monitoring overview.</p></div><div class="badge success"><span class="status-dot"></span> Frontend online</div></div>
-
         <div class="command-kpi-grid">
           <article class="card kpi command-kpi"><div class="kpi-meta"><span class="label">Network Health</span><span class="kpi-trend up">↑ 2.4%</span></div><strong class="kpi-value">98.7%</strong><span class="kpi-sub">Overall service health</span></article>
           <article class="card kpi command-kpi"><div class="kpi-meta"><span class="label">MikroTik</span><span class="badge success">Online</span></div><strong class="kpi-value">12 / 12</strong><span class="kpi-sub">Routers available</span></article>
           <article class="card kpi command-kpi"><div class="kpi-meta"><span class="label">OLT / PON</span><span class="badge success">Healthy</span></div><strong class="kpi-value">8 / 8</strong><span class="kpi-sub">Systems available</span></article>
           <article class="card kpi command-kpi"><div class="kpi-meta"><span class="label">ONU Online</span><span class="kpi-trend up">↑ 18</span></div><strong class="kpi-value">1,842</strong><span class="kpi-sub">Active subscriber endpoints</span></article>
         </div>
-
         <div class="command-grid">
           <article class="card panel command-panel"><div class="panel-head"><div><span class="eyebrow">TRAFFIC OVERVIEW</span><h3>Network traffic</h3></div><span class="badge">Last 12 periods</span></div><div class="traffic-chart" aria-label="Traffic overview chart"><span class="traffic-bar" style="height:42%"></span><span class="traffic-bar" style="height:56%"></span><span class="traffic-bar" style="height:48%"></span><span class="traffic-bar" style="height:67%"></span><span class="traffic-bar" style="height:61%"></span><span class="traffic-bar" style="height:76%"></span><span class="traffic-bar" style="height:69%"></span><span class="traffic-bar" style="height:88%"></span><span class="traffic-bar" style="height:73%"></span><span class="traffic-bar" style="height:94%"></span><span class="traffic-bar" style="height:81%"></span><span class="traffic-bar" style="height:90%"></span></div><div class="traffic-legend"><span><i class="legend-dot"></i>Throughput</span><span>Trend visualization</span></div></article>
-
           <article class="card panel command-panel"><div class="panel-head"><div><span class="eyebrow">NETWORK HEALTH</span><h3>Service health</h3></div><span class="badge success">Stable</span></div><div class="health-list"><div class="health-row"><div><div class="health-label"><span class="status-dot"></span>Core network</div><div class="health-meter"><span style="width:99%"></span></div></div><strong class="health-value">99%</strong></div><div class="health-row"><div><div class="health-label"><span class="status-dot"></span>Access network</div><div class="health-meter"><span style="width:97%"></span></div></div><strong class="health-value">97%</strong></div><div class="health-row"><div><div class="health-label"><span class="status-dot"></span>Optical layer</div><div class="health-meter"><span style="width:96%"></span></div></div><strong class="health-value">96%</strong></div></div></article>
         </div>
-
         <div class="command-grid">
           <article class="card panel command-panel"><div class="panel-head"><div><span class="eyebrow">SYSTEM STATUS</span><h3>Infrastructure summary</h3></div><span class="badge success">Operational</span></div><div class="status-grid"><div class="status-tile"><span>Routers</span><strong>12 online</strong></div><div class="status-tile"><span>OLT systems</span><strong>8 online</strong></div><div class="status-tile"><span>ONU endpoints</span><strong>1,842 online</strong></div><div class="status-tile"><span>Interfaces</span><strong>96 monitored</strong></div><div class="status-tile"><span>Alerts</span><strong>3 active</strong></div><div class="status-tile"><span>Uptime</span><strong>99.98%</strong></div></div></article>
-
           <article class="card panel command-panel"><div class="panel-head"><div><span class="eyebrow">RECENT EVENTS</span><h3>Latest activity</h3></div><span class="badge">Today</span></div><div class="event-list"><div class="event-row"><div class="event-main"><span class="event-icon warning"></span><div><div class="event-title">PON optical warning</div><span class="event-time">Zone A · 8 min ago</span></div></div><span class="badge warning">Warning</span></div><div class="event-row"><div class="event-main"><span class="event-icon"></span><div><div class="event-title">Router health check passed</div><span class="event-time">Core-01 · 14 min ago</span></div></div><span class="badge">Info</span></div><div class="event-row"><div class="event-main"><span class="event-icon critical"></span><div><div class="event-title">3 alerts awaiting review</div><span class="event-time">Alert Center · 21 min ago</span></div></div><span class="badge danger">Critical</span></div></div></article>
         </div>
-
         <article class="card panel roadmap"><div class="panel-head"><div><span class="eyebrow">BUILD STATUS</span><h3>Frontend roadmap progress</h3></div><span class="badge success">Step 03 active</span></div><div class="progress"><span style="width:100%"></span></div><div class="steps"><div class="step done"><b>01</b><span>Foundation</span></div><div class="step done"><b>02</b><span>Application Shell</span></div><div class="step done"><b>03</b><span>Command Center</span></div><div class="step"><b>04</b><span>Topology</span></div><div class="step"><b>05</b><span>Network Map</span></div></div></article>
       </section>
-      <footer class="footer">ISP Monitoring • Frontend Step 03 • <span>Command Center UI layer</span></footer>
+
+      <section class="content topology-page" id="topologyView" data-view="topology" hidden>
+        <div class="hero-row"><div><p class="eyebrow">TOPOLOGY / V1</p><h2>Interactive Network Topology</h2><p class="muted">Core → Switch → OLT → ONU → Customer network hierarchy.</p></div><div class="badge success"><span class="status-dot"></span> Interactive</div></div>
+        <div class="topology-toolbar"><div class="topology-filters" aria-label="Topology filters"><button type="button" class="topology-filter active" data-filter="all">All</button><button type="button" class="topology-filter" data-filter="Core">Core</button><button type="button" class="topology-filter" data-filter="Switch">Switch</button><button type="button" class="topology-filter" data-filter="OLT">OLT</button><button type="button" class="topology-filter" data-filter="ONU">ONU</button><button type="button" class="topology-filter" data-filter="Customer">Customer</button></div><div class="topology-legend"><span><i class="legend-node"></i>Online / healthy</span><span><i class="legend-link"></i>Network path</span></div></div>
+        <div class="topology-workspace">
+          <div class="topology-canvas" aria-label="Interactive network topology diagram">
+            <div class="topology-stage">
+              <svg class="topology-links" viewBox="0 0 900 540" aria-hidden="true"><path class="topology-link" data-link="core-sw" d="M450 115 L450 150"/><path class="topology-link" data-link="sw-olt1" d="M450 230 L227 270"/><path class="topology-link" data-link="sw-olt2" d="M450 230 L450 270"/><path class="topology-link" data-link="sw-olt3" d="M450 230 L673 270"/><path class="topology-link" data-link="olt1-onu1" d="M227 350 L125 430"/><path class="topology-link" data-link="olt1-onu2" d="M227 350 L322 430"/><path class="topology-link" data-link="olt2-onu2" d="M450 350 L322 430"/><path class="topology-link" data-link="olt2-onu3" d="M450 350 L519 430"/><path class="topology-link" data-link="olt3-customer" d="M673 350 L716 430"/></svg>
+              <button type="button" class="topology-node node-core" data-node="core" data-type="Core"><span class="node-type">Core</span><strong>Core Router</strong><small>Core-01</small><span class="node-status"><i class="status-dot"></i>Online</span></button>
+              <button type="button" class="topology-node node-switch" data-node="sw" data-type="Switch"><span class="node-type">Switch</span><strong>Distribution Switch</strong><small>SW-Core-01</small><span class="node-status"><i class="status-dot"></i>Online</span></button>
+              <button type="button" class="topology-node node-olt1" data-node="olt1" data-type="OLT"><span class="node-type">OLT</span><strong>OLT North</strong><small>OLT-N01</small><span class="node-status"><i class="status-dot"></i>Online</span></button>
+              <button type="button" class="topology-node node-olt2" data-node="olt2" data-type="OLT"><span class="node-type">OLT</span><strong>OLT Central</strong><small>OLT-C01</small><span class="node-status"><i class="status-dot"></i>Online</span></button>
+              <button type="button" class="topology-node node-olt3" data-node="olt3" data-type="OLT"><span class="node-type">OLT</span><strong>OLT South</strong><small>OLT-S01</small><span class="node-status"><i class="status-dot"></i>Warning</span></button>
+              <button type="button" class="topology-node node-onu1" data-node="onu1" data-type="ONU"><span class="node-type">ONU</span><strong>ONU-001</strong><small>Zone A / POP-01</small><span class="node-status"><i class="status-dot"></i>Online</span></button>
+              <button type="button" class="topology-node node-onu2" data-node="onu2" data-type="ONU"><span class="node-type">ONU</span><strong>ONU-024</strong><small>Zone B / POP-02</small><span class="node-status"><i class="status-dot"></i>Online</span></button>
+              <button type="button" class="topology-node node-onu3" data-node="onu3" data-type="ONU"><span class="node-type">ONU</span><strong>ONU-118</strong><small>Zone C / POP-04</small><span class="node-status"><i class="status-dot"></i>Online</span></button>
+              <button type="button" class="topology-node node-customer" data-node="customer" data-type="Customer"><span class="node-type">Customer</span><strong>Customer Network</strong><small>CPE / LAN</small><span class="node-status"><i class="status-dot"></i>Online</span></button>
+            </div>
+          </div>
+          <aside class="card panel topology-details" aria-live="polite"><div class="panel-head"><div><span class="eyebrow">SELECTED NODE</span><h3 data-detail="name">Core Router</h3></div><span class="badge success" data-detail="status">Online</span></div><div class="detail-value" data-detail="type">Core</div><dl><div><dt>Device</dt><dd data-detail="name">Core-01</dd></div><div><dt>Network path</dt><dd data-detail="path">Core → Switch</dd></div><div><dt>Layer</dt><dd>Frontend topology model</dd></div></dl></aside>
+        </div>
+      </section>
+
+      <footer class="footer">ISP Monitoring • Frontend Step 04 • <span>Interactive Topology UI layer</span></footer>
     </main>
   </div>
 
@@ -86,6 +104,7 @@
   <script src="js/components/topbar.js"></script>
   <script src="js/components/notifications.js"></script>
   <script src="js/components/command-palette.js"></script>
+  <script src="js/components/topology.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
