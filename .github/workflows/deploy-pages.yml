@@ -47,6 +47,34 @@ jobs:
           test ! -e _site/.github
           test ! -e _site/.devcontainer
 
+      - name: Configure frontend API endpoint
+        env:
+          ISP_API_BASE_URL: ${{ vars.ISP_API_BASE_URL }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import re
+          from urllib.parse import urlparse
+
+          base_url = os.environ.get("ISP_API_BASE_URL", "").strip().rstrip("/")
+          if base_url:
+              parsed = urlparse(base_url)
+              if not parsed.netloc or parsed.path not in ("", "/") or parsed.query or parsed.fragment:
+                  raise SystemExit("ISP_API_BASE_URL must be an origin, e.g. https://api.example.com")
+              if parsed.scheme != "https" and parsed.hostname not in ("localhost", "127.0.0.1"):
+                  raise SystemExit("ISP_API_BASE_URL must use HTTPS outside localhost")
+          config_path = "_site/js/api-config.js"
+          with open(config_path, encoding="utf-8") as handle:
+              source = handle.read()
+          updated, count = re.subn(r"baseUrl:\s*''", "baseUrl: " + json.dumps(base_url), source, count=1)
+          if count != 1:
+              raise SystemExit("Could not locate the frontend baseUrl configuration")
+          with open(config_path, "w", encoding="utf-8") as handle:
+              handle.write(updated)
+          print("Frontend API endpoint: " + (base_url or "unconfigured (safe demo/offline mode)"))
+          PY
+
       - name: Upload frontend artifact
         uses: actions/upload-pages-artifact@v3
         with:
