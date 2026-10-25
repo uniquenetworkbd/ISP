@@ -1,10 +1,8 @@
-from fastapi.routing import APIRoute
-
 from app.main import app
 
 
 def test_api_contract_routes_registered() -> None:
-    paths = {route.path for route in app.routes if isinstance(route, APIRoute)}
+    paths = set(app.openapi()["paths"])
     expected = {
         "/api/auth/login",
         "/api/auth/me",
