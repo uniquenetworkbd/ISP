@@ -16,8 +16,7 @@ window.ISPApp=window.ISPApp||{};
               <label>Password<input name="password" type="password" required autocomplete="current-password" placeholder="••••••••"></label>
               <label>REST Port<input name="port" type="number" min="1" max="65535" value="443"></label>
               <label>Timeout (seconds)<input name="timeout_seconds" type="number" min="2" max="60" value="10"></label>
-              <label>Access Mode<select name="access_mode"><option value="read">Read</option><option value="read_write">Read / Write</option><option value="full">Full</option></select></label>
-              <label>Transport<select name="transport"><option value="https">HTTPS / REST</option><option value="http">HTTP / REST (test only)</option></select></label>
+              <label>Access Mode<select name="access_mode"><option value="read">Read</option><option value="write">Read / Write</option><option value="full">Full</option></select></label>
             </div>
             <div class="form-note"><strong>Connection flow:</strong> Test → Save → Scan users → Load live telemetry.</div>
           </form>
@@ -31,7 +30,7 @@ window.ISPApp=window.ISPApp||{};
     </section>`;
     root.querySelectorAll('[data-mikrotik-action]').forEach(b=>b.addEventListener('click',()=>action(b.dataset.mikrotikAction)));
   }
-  function values(){const f=document.querySelector('[data-mikrotik-form');return Object.fromEntries(new FormData(f).entries());}
+  function values(){const f=document.querySelector('[data-mikrotik-form]');const data=Object.fromEntries(new FormData(f).entries());['port','timeout_seconds','pop_id'].forEach(k=>{if(data[k]!==undefined)data[k]=Number(data[k]);});return data;}
   async function action(type){
     const status=document.querySelector('[data-mikrotik-status]');
     if(type==='refresh'){return window.ISPApp.apiStore?.loadMikroTikServers?.();}
@@ -39,8 +38,8 @@ window.ISPApp=window.ISPApp||{};
     if(!api||!window.ISPApp.api?.baseUrl){status.textContent='Backend not configured';window.ISPApp.ui?.toast?.('Configure the FastAPI backend before connecting a MikroTik.','warning');return;}
     try{
       const data=values();
-      if(type==='test'){status.textContent='Testing…';const r=await api.testMikroTikConnection(data);status.textContent=r?.status||'Connection OK';window.ISPApp.ui?.toast?.('MikroTik connection test completed.','success');}
-      if(type==='save'){status.textContent='Saving…';await api.createMikroTikServer(data);status.textContent='Connected & saved';window.ISPApp.ui?.toast?.('MikroTik server saved.','success');await window.ISPApp.apiStore?.loadMikroTikServers?.();}
+      if(type==='test'){status.textContent='Testing…';const r=await api.mikrotikTestConnection({server_ip:data.server_ip,username:data.username,password:data.password,port:data.port,timeout_seconds:data.timeout_seconds});status.textContent=r?.status||'Connection OK';window.ISPApp.ui?.toast?.('MikroTik connection test completed.','success');}
+      if(type==='save'){status.textContent='Saving…';await api.mikrotikCreateServer(data);status.textContent='Saved · probe not yet verified';window.ISPApp.ui?.toast?.('MikroTik server configuration saved. Run Test Connection to verify reachability.','success');await window.ISPApp.apiStore?.loadMikroTikServers?.();}
     }catch(e){status.textContent='Connection failed';window.ISPApp.ui?.toast?.(e.message||'MikroTik operation failed.','error');}
   }
   document.addEventListener('isp:app-ready',()=>{if(window.ISPApp.router?.current?.()===route)render();});
