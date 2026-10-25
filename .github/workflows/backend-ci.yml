@@ -18,9 +18,25 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: isp
+          POSTGRES_PASSWORD: isp
+          POSTGRES_DB: isp
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U isp -d isp"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
     defaults:
       run:
         working-directory: backend
+    env:
+      DATABASE_URL: postgresql+psycopg://isp:isp@localhost:5432/isp
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -28,4 +44,6 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install --upgrade pip
       - run: pip install -r requirements.txt
+      - run: alembic upgrade head
+      - run: alembic check
       - run: PYTHONPATH=. pytest -q
