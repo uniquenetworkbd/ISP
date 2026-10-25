@@ -7,8 +7,6 @@ window.ISPApp = window.ISPApp || {};
 
   function toast(message){const el=document.getElementById('toast');if(!el)return;el.textContent=message;el.classList.add('show');clearTimeout(window.ISPApp._toastTimer);window.ISPApp._toastTimer=setTimeout(()=>el.classList.remove('show'),2200);}
   window.ISPApp.toast=toast;
-  const apiMeta=document.querySelector('meta[name="isp-api-base"]');
-  window.ISPApp.api=window.ISPApp.api||{baseUrl:apiMeta?.content||'',tokenKey:'isp_access_token'};
 
   function load(src,key){
     if(document.querySelector(`script[data-${key}]`) || document.querySelector(`script[src$="/${src}"]`)) return null;
@@ -21,6 +19,7 @@ window.ISPApp = window.ISPApp || {};
   function loadShell(){
     load('js/state.js','state');
     load('js/router.js','router');
+    load('js/api-config.js','api-config');
     load('js/api-client.js','api-client');
     load('js/api-store.js','api-store');
     load('js/api-ui-bridge.js','api-ui-bridge');
