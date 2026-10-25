@@ -63,7 +63,7 @@ def create_server(payload: MikroTikServerCreate, db: Session = Depends(get_db), 
     except CredentialEncryptionError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     device = Device(name=payload.name, device_type="mikrotik", vendor="mikrotik", model=payload.model,
-                    management_address=_endpoint(payload.server_ip, payload.port), pop_id=payload.pop_id,
+                    management_address=_endpoint(payload.server_ip, payload.port, payload.protocol), pop_id=payload.pop_id,
                     access_mode=payload.access_mode, timeout_seconds=payload.timeout_seconds, status="testing")
     db.add(device)
     db.flush()
@@ -97,7 +97,7 @@ def delete_server(server_id: int, db: Session = Depends(get_db), user: User = De
 @router.post("/test-connection")
 def test_connection(payload: MikroTikConnectionTest, _user: User = Depends(require_roles("admin", "operator"))):
     result = connector.probe(ConnectorContext(device_id=0, vendor="mikrotik", device_type="mikrotik",
-        endpoint=_endpoint(payload.server_ip, payload.port), credential={"username": payload.username, "password": payload.password}))
+        endpoint=_endpoint(payload.server_ip, payload.port, payload.protocol), credential={"username": payload.username, "password": payload.password}))
     if not result.ok:
         raise HTTPException(status_code=502, detail=result.errors or ["MikroTik connection failed"])
     return {"status": "connected", "version": result.data.get("version"), "checked_at": result.observed_at.isoformat()}
