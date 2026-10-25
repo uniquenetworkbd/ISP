@@ -75,6 +75,14 @@ jobs:
           print("Frontend API endpoint: " + (base_url or "unconfigured (safe demo/offline mode)"))
           PY
 
+      - name: Validate frontend JavaScript syntax
+        run: |
+          set -euo pipefail
+          find _site/js -type f -name '*.js' -print0 | xargs -0 -n1 node --check
+          test -f _site/js/components/olt-connection-page.js
+          grep -q "oltServers" _site/js/router.js
+          grep -q "oltServers" _site/js/components/menu-system-v2.js
+
       - name: Upload frontend artifact
         uses: actions/upload-pages-artifact@v3
         with:
