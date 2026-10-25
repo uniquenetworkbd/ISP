@@ -3,11 +3,11 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.api.dependencies import get_current_roles, get_current_user
+from app.core.config import settings
 from app.core.security import create_access_token, verify_password
 from app.db import get_db
-from app.models import Role, User, UserRole
+from app.models import User
 from app.schemas.auth import CurrentUser, LoginRequest, TokenResponse
-from app.core.config import settings
 
 router = APIRouter()
 
