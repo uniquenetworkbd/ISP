@@ -10,3 +10,4 @@ cryptography>=43,<47
 pytest>=8,<9
 httpx>=0.27,<1
 pysnmp>=7.1,<8
+RouterOS-api>=0.21.0,<1

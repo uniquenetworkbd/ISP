@@ -72,6 +72,7 @@ window.ISPApp = window.ISPApp || {};
     pops: (zoneId) => request(`/network/pops${zoneId == null ? '' : `?zone_id=${encodeURIComponent(zoneId)}`}`),
     topology: () => request('/network/topology'),
     databaseHealth: () => request('/database/health'),
+    oltProfiles: () => request('/olt/profiles'),
     oltServers: () => request('/olt/servers'),
     oltTestConnection: (payload) => request('/olt/test-connection', { method: 'POST', body: JSON.stringify(payload) }),
     oltCreateServer: (payload) => request('/olt/servers', { method: 'POST', body: JSON.stringify(payload) }),
@@ -84,6 +85,8 @@ window.ISPApp = window.ISPApp || {};
     mikrotikScan: (id) => request(`/mikrotik/servers/${encodeURIComponent(id)}/scan`, { method: 'POST' }),
     mikrotikUsers: (id, search = '') => request(`/mikrotik/servers/${encodeURIComponent(id)}/users${search ? `?search=${encodeURIComponent(search)}` : ''}`),
     mikrotikLive: (id) => request(`/mikrotik/servers/${encodeURIComponent(id)}/live`),
+    mikrotikTestSavedServer: (id) => request(`/mikrotik/servers/${encodeURIComponent(id)}/test`, { method: 'POST' }),
+    mikrotikConnectionTests: (id, limit = 20) => request(`/mikrotik/servers/${encodeURIComponent(id)}/connection-tests?limit=${encodeURIComponent(limit)}`),
   };
 
   window.ISPApp.apiClient = apiClient;
