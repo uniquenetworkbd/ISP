@@ -21,6 +21,7 @@ window.ISPApp = window.ISPApp || {};
     load('js/router.js','router');
     load('js/api-client.js','api-client');
     load('js/api-store.js','api-store');
+    load('js/api-ui-bridge.js','api-ui-bridge');
     load('js/components/sidebar.js','sidebar');
     load('js/components/topbar.js','topbar');
     load('js/components/command-palette.js','command-palette');
