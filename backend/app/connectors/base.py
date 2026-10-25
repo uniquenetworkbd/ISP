@@ -1,20 +1,50 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from typing import Any
 
 
 @dataclass(frozen=True)
-class DeviceConnection:
-    address: str
-    username: str | None = None
+class ConnectorContext:
+    device_id: int
+    vendor: str
+    device_type: str
+    endpoint: str | None = None
+    secret_ref: str | None = None
+
+
+@dataclass
+class ConnectorResult:
+    status: str
+    device_id: int
+    observed_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    data: dict[str, Any] = field(default_factory=dict)
+    errors: list[str] = field(default_factory=list)
+    capabilities: list[str] = field(default_factory=list)
+
+    @property
+    def ok(self) -> bool:
+        return self.status == "ok"
 
 
 class DeviceConnector(ABC):
-    """Common connector contract used by MikroTik/OLT adapters."""
+    vendor: str = "unknown"
+    device_types: tuple[str, ...] = ()
 
     @abstractmethod
-    def test_connection(self, connection: DeviceConnection) -> bool:
+    def capabilities(self) -> list[str]:
         raise NotImplementedError
 
     @abstractmethod
-    def collect_health(self, connection: DeviceConnection) -> dict:
+    def collect(self, context: ConnectorContext) -> ConnectorResult:
         raise NotImplementedError
+
+    def probe(self, context: ConnectorContext) -> ConnectorResult:
+        return ConnectorResult(
+            status="unsupported",
+            device_id=context.device_id,
+            errors=["Connectivity probe is not implemented for this connector."],
+            capabilities=self.capabilities(),
+        )
