@@ -1,0 +1,12 @@
+{
+  "name": "isp-noc-frontend-tests",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Browser smoke test harness for the ISP NOC frontend",
+  "scripts": {
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0"
+  }
+}
