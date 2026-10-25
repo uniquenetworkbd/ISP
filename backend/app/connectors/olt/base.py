@@ -14,18 +14,23 @@ from pysnmp.hlapi.v3arch.asyncio import (
 )
 
 from ..base import ConnectorContext, ConnectorResult, DeviceConnector
+from .contracts import CollectorResult, pending_vendor_telemetry
+from .profiles import OLTVendorProfile, get_olt_vendor_profile
 
 
 class OLTConnector(DeviceConnector):
-    """Generic SNMPv2c system probe for OLTs; vendor PON/ONU MIB profiles remain separate."""
+    """Generic SNMPv2c system probe plus explicit vendor-profile collector boundaries."""
 
     device_types = ("olt",)
     SYS_DESCR = "1.3.6.1.2.1.1.1.0"
     SYS_UPTIME = "1.3.6.1.2.1.1.3.0"
     SYS_NAME = "1.3.6.1.2.1.1.5.0"
 
+    def vendor_profile(self) -> OLTVendorProfile:
+        return get_olt_vendor_profile(self.vendor)
+
     def capabilities(self) -> list[str]:
-        return ["snmp_system_probe", "sys_descr", "sys_name", "sys_uptime"]
+        return list(self.vendor_profile().capabilities)
 
     @staticmethod
     def _target(endpoint: str) -> tuple[str, int]:
@@ -90,6 +95,7 @@ class OLTConnector(DeviceConnector):
             if not 0.5 <= timeout <= 30:
                 raise ValueError("SNMP timeout must be between 0.5 and 30 seconds")
             data = asyncio.run(self._query_system(host, port, community, timeout))
+            profile = self.vendor_profile()
             return ConnectorResult(
                 status="ok",
                 device_id=context.device_id,
@@ -98,18 +104,36 @@ class OLTConnector(DeviceConnector):
                     "host": host,
                     "port": port,
                     "protocol": "SNMPv2c",
+                    "vendor_profile_status": profile.profile_status,
                     "vendor_telemetry": "requires_vendor_mib_profile",
                 },
                 capabilities=self.capabilities(),
             )
         except Exception as exc:
-            # Do not return transport exception text that might expose endpoint or configuration details.
             return ConnectorResult(
                 status="error",
                 device_id=context.device_id,
                 errors=[f"SNMP probe failed ({exc.__class__.__name__}). Check reachability, port, community and SNMP ACL."],
                 capabilities=self.capabilities(),
             )
+
+    def discover_pons(self, context: ConnectorContext) -> CollectorResult:
+        profile = self.vendor_profile()
+        if not profile.vendor_telemetry_ready:
+            return pending_vendor_telemetry(profile.mib_profile_id, profile.capabilities)
+        raise NotImplementedError("Validated vendor PON collector is not implemented")
+
+    def discover_onus(self, context: ConnectorContext) -> CollectorResult:
+        profile = self.vendor_profile()
+        if not profile.vendor_telemetry_ready:
+            return pending_vendor_telemetry(profile.mib_profile_id, profile.capabilities)
+        raise NotImplementedError("Validated vendor ONU collector is not implemented")
+
+    def collect_optical_metrics(self, context: ConnectorContext) -> CollectorResult:
+        profile = self.vendor_profile()
+        if not profile.vendor_telemetry_ready:
+            return pending_vendor_telemetry(profile.mib_profile_id, profile.capabilities)
+        raise NotImplementedError("Validated vendor optical collector is not implemented")
 
     def collect(self, context: ConnectorContext) -> ConnectorResult:
         return self.probe(context)
