@@ -169,3 +169,17 @@ class AuditLog(Base):
     resource_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     details: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class DeviceConnectionTest(Base):
+    __tablename__ = "device_connection_tests"
+    __table_args__ = (Index("idx_connection_tests_device_time", "device_id", "checked_at"),)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    device_id: Mapped[int] = mapped_column(ForeignKey("devices.id", ondelete="CASCADE"), nullable=False)
+    protocol: Mapped[str] = mapped_column(String(16), nullable=False)
+    status: Mapped[str] = mapped_column(String(24), nullable=False)
+    duration_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    routeros_version: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    error_code: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    checked_by: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    checked_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
