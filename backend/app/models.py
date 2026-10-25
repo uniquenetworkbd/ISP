@@ -102,6 +102,12 @@ class User(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
+class UserRole(Base):
+    __tablename__ = "user_roles"
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    role_id: Mapped[int] = mapped_column(ForeignKey("roles.id", ondelete="CASCADE"), primary_key=True)
+
+
 class DeviceCredential(Base):
     __tablename__ = "device_credentials"
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
