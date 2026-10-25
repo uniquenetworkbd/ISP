@@ -4,5 +4,6 @@ window.ISPApp = window.ISPApp || {};
 // Set baseUrl to the deployed FastAPI origin during deployment configuration.
 window.ISPApp.api = {
   baseUrl: '',
+  timeoutMs: 10000,
   tokenKey: 'isp_access_token',
 };
