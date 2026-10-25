@@ -33,3 +33,14 @@ def test_development_configuration_keeps_local_defaults_usable() -> None:
         jwt_secret="dev-only-change-this-secret",
         encryption_key=None,
     )
+
+
+def test_production_configuration_rejects_cors_paths() -> None:
+    with pytest.raises(RuntimeError, match="ALLOWED_ORIGINS"):
+        validate_production_configuration(
+            app_env="production",
+            database_url="postgresql+psycopg://isp:secret@db.example.net:5432/isp",
+            allowed_origins=["https://uniquenetworkbd.github.io/ISP/"],
+            jwt_secret="random-production-secret-value-which-is-long-enough",
+            encryption_key=Fernet.generate_key().decode(),
+        )
