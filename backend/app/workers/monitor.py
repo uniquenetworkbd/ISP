@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.connectors.base import ConnectorContext, ConnectorResult
 from app.connectors.registry import build_default_connector_manager
-from app.credentials.provider import CredentialReference, SecretRefCredentialProvider
+from app.credentials.device_store import resolve_device_credential
 from app.models import Device, DeviceCredential, Metric
 from app.monitoring.alerts import evaluate_result
 from app.monitoring.circuit_breaker import CircuitBreaker, CircuitPolicy, CircuitState
@@ -59,29 +59,14 @@ def _collect_with_retry(connector_manager, context: ConnectorContext) -> Connect
         return retry_call(collect_once, RETRY_POLICY)
     except Exception:
         observed_at = last_result.observed_at if last_result else datetime.now(timezone.utc)
-        errors = last_result.errors if last_result and last_result.errors else [
-            "Connector collection failed after bounded retries."
-        ]
-        return ConnectorResult(
-            status="error",
-            device_id=context.device_id,
-            observed_at=observed_at,
-            errors=errors,
-        )
+        errors = last_result.errors if last_result and last_result.errors else ["Connector collection failed after bounded retries."]
+        return ConnectorResult(status="error", device_id=context.device_id, observed_at=observed_at, errors=errors)
 
 
-def run_monitor_cycle(
-    db: Session,
-    *,
-    manager=None,
-    credential_provider: SecretRefCredentialProvider | None = None,
-) -> dict[str, int]:
+def run_monitor_cycle(db: Session, *, manager=None, credential_provider=None) -> dict[str, int]:
     connector_manager = manager or build_default_connector_manager()
-    provider = credential_provider or SecretRefCredentialProvider()
-    devices = list(db.scalars(select(Device).order_by(Device.id)))
-    credential_refs = {
-        item.device_id: item.secret_ref for item in db.scalars(select(DeviceCredential)).all()
-    }
+    devices = list(db.scalars(select(Device).order_by(Device.id)).all())
+    credentials = {item.device_id: item for item in db.scalars(select(DeviceCredential)).all()}
     metrics_written = 0
     skipped_circuit = 0
     totals = {"created": 0, "repeated": 0, "reopened": 0, "recovered": 0, "resolved": 0}
@@ -98,11 +83,8 @@ def run_monitor_cycle(
             skipped_circuit += 1
             continue
 
-        secret_ref = credential_refs.get(device.id)
-        credential = None
-        if secret_ref:
-            credential = provider.resolve(CredentialReference(secret_ref=secret_ref))
-
+        credential = resolve_device_credential(db, credentials.get(device.id))
+        secret_ref = credentials.get(device.id).secret_ref if credentials.get(device.id) else None
         result = _collect_with_retry(
             connector_manager,
             ConnectorContext(
@@ -118,6 +100,10 @@ def run_monitor_cycle(
         if result.ok:
             breaker.record_success(result.observed_at)
             device.status = "online"
+            device.last_live_at = result.observed_at
+            version = result.data.get("routeros_version")
+            if version:
+                device.routeros_version = str(version)
         else:
             breaker.record_failure(result.observed_at)
             device.status = "unreachable"
@@ -130,12 +116,7 @@ def run_monitor_cycle(
             metrics_written += 1
 
         candidates = deduplicate_candidates(evaluate_result(result))
-        lifecycle = apply_alert_lifecycle(
-            db,
-            device_id=device.id,
-            candidates=candidates,
-            observed_at=result.observed_at,
-        )
+        lifecycle = apply_alert_lifecycle(db, device_id=device.id, candidates=candidates, observed_at=result.observed_at)
         for key, value in lifecycle.items():
             totals[key] += value
 
