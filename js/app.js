@@ -24,7 +24,12 @@ window.ISPApp = window.ISPApp || {};
     const existing = loaded.get(src) || document.querySelector(`script[src$="/${src}"]`);
     if (existing) {
       if (existing.__ispLoadPromise) return existing.__ispLoadPromise;
-      if (existing.dataset.loaded === 'true') return Promise.resolve(existing);
+      // Scripts listed directly in index.html have already executed by the time
+      // app.js starts. Waiting for a load event here would deadlock the boot.
+      if (existing.dataset.loaded === 'true' || document.readyState !== 'loading') {
+        existing.dataset.loaded = 'true';
+        return Promise.resolve(existing);
+      }
     }
     if (loaded.has(src)) return loaded.get(src);
 
