@@ -1,7 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import BigInteger, Boolean, DateTime, ForeignKey, Integer, Numeric, String, Text, func
+from sqlalchemy import BigInteger, Boolean, DateTime, ForeignKey, Index, Integer, Numeric, String, Text, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -29,6 +29,7 @@ class POP(Base):
 
 class Device(Base):
     __tablename__ = "devices"
+    __table_args__ = (Index("idx_devices_type", "device_type"),)
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     pop_id: Mapped[int | None] = mapped_column(ForeignKey("pops.id"), nullable=True)
     name: Mapped[str] = mapped_column(String(160))
@@ -66,6 +67,7 @@ class ONU(Base):
 
 class Metric(Base):
     __tablename__ = "metrics"
+    __table_args__ = (Index("idx_metrics_device_time", "device_id", "recorded_at"),)
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     device_id: Mapped[int] = mapped_column(ForeignKey("devices.id"))
     metric_name: Mapped[str] = mapped_column(String(120))
@@ -76,6 +78,7 @@ class Metric(Base):
 
 class Alert(Base):
     __tablename__ = "alerts"
+    __table_args__ = (Index("idx_alerts_status_time", "status", "detected_at"),)
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     device_id: Mapped[int | None] = mapped_column(ForeignKey("devices.id"), nullable=True)
     severity: Mapped[str] = mapped_column(String(32))
@@ -119,6 +122,7 @@ class DeviceCredential(Base):
 
 class AuditLog(Base):
     __tablename__ = "audit_logs"
+    __table_args__ = (Index("idx_audit_logs_time", "created_at"),)
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     action: Mapped[str] = mapped_column(String(120))
