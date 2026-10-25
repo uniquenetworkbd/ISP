@@ -1,6 +1,6 @@
 window.ISPApp = window.ISPApp || {};
 (function () {
-  const BUILD_VERSION = '2026.10.25.1536';
+  const BUILD_VERSION = '2026.10.25.1550';
   const loaded = new Map();
   window.ISPApp.buildVersion = BUILD_VERSION;
 
