@@ -1,5 +1,7 @@
 from fastapi import APIRouter
 
+from app.schemas.device import DeviceCreate
+
 router = APIRouter()
 
 
@@ -9,5 +11,5 @@ def list_devices() -> dict[str, list]:
 
 
 @router.post("/")
-def create_device(payload: dict) -> dict:
-    return {"status": "accepted", "device": payload}
+def create_device(payload: DeviceCreate) -> dict:
+    return {"status": "accepted", "device": payload.model_dump()}
