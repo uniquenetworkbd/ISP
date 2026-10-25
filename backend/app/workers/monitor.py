@@ -99,10 +99,9 @@ def run_monitor_cycle(
             continue
 
         secret_ref = credential_refs.get(device.id)
+        credential = None
         if secret_ref:
-            # Resolve only through the injected provider boundary. The connector
-            # context retains the reference; no secret is persisted or logged here.
-            provider.resolve(CredentialReference(secret_ref=secret_ref))
+            credential = provider.resolve(CredentialReference(secret_ref=secret_ref))
 
         result = _collect_with_retry(
             connector_manager,
@@ -112,6 +111,7 @@ def run_monitor_cycle(
                 device_type=device.device_type,
                 endpoint=device.management_address,
                 secret_ref=secret_ref,
+                credential=credential,
             ),
         )
 
