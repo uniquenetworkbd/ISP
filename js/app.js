@@ -7,10 +7,20 @@ window.ISPApp = window.ISPApp || {};
 
   function toast(message){const el=document.getElementById('toast');if(!el)return;el.textContent=message;el.classList.add('show');clearTimeout(window.ISPApp._toastTimer);window.ISPApp._toastTimer=setTimeout(()=>el.classList.remove('show'),2200);}
   window.ISPApp.toast=toast;
-  function load(src,key){if(document.querySelector(`script[data-${key}]`))return null;const script=document.createElement('script');script.src=src;script.dataset[key]='true';document.body.appendChild(script);return script;}
+
+  function load(src,key){
+    if(document.querySelector(`script[data-${key}]`) || document.querySelector(`script[src$="/${src}"]`)) return null;
+    const script=document.createElement('script');
+    script.src=src;
+    script.dataset[key]='true';
+    document.body.appendChild(script);
+    return script;
+  }
+
   function loadShell(){
     load('js/state.js','state');
     load('js/router.js','router');
+    load('js/api-client.js','api-client');
     load('js/components/sidebar.js','sidebar');
     load('js/components/topbar.js','topbar');
     load('js/components/command-palette.js','command-palette');
