@@ -9,6 +9,7 @@ from app.api.routes.database import router as database_router
 from app.api.routes.devices import router as devices_router
 from app.api.routes.monitoring import router as monitoring_router
 from app.api.routes.network import router as network_router
+from app.api.routes.system import router as system_router
 from app.core.config import settings
 from app.db import get_db
 
@@ -28,6 +29,7 @@ app.include_router(monitoring_router, prefix="/api/monitoring", tags=["monitorin
 app.include_router(network_router, prefix="/api/network", tags=["network"])
 app.include_router(database_router, prefix="/api/database", tags=["database"])
 app.include_router(audit_router, prefix="/api/audit", tags=["audit"])
+app.include_router(system_router, prefix="/api/system", tags=["system"])
 
 
 @app.get("/health", tags=["system"])
