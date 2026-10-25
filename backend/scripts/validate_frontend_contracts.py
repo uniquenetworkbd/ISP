@@ -15,6 +15,14 @@ if not declared:
 
 errors = []
 checked = 0
+app_shell = (JS_ROOT / "app.js").read_text(encoding="utf-8")
+for required_component in (
+    "js/components/mikrotik-login-page.js",
+    "js/components/olt-connection-page.js",
+    "js/components/access-session-page.js",
+):
+    if required_component not in app_shell:
+        errors.append(f"Application shell does not load required component: {required_component}")
 for path in sorted(JS_ROOT.rglob("*.js")):
     if path == CLIENT:
         continue
