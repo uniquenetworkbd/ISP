@@ -58,6 +58,7 @@ window.ISPApp = window.ISPApp || {};
     mikrotikServers: () => request('/mikrotik/servers'),
     mikrotikTestConnection: (payload) => request('/mikrotik/test-connection', { method: 'POST', body: JSON.stringify(payload) }),
     mikrotikCreateServer: (payload) => request('/mikrotik/servers', { method: 'POST', body: JSON.stringify(payload) }),
+    mikrotikDeleteServer: (id) => request(`/mikrotik/servers/${encodeURIComponent(id)}`, { method: 'DELETE' }),
     mikrotikScan: (id) => request(`/mikrotik/servers/${encodeURIComponent(id)}/scan`, { method: 'POST' }),
     mikrotikUsers: (id, search = '') => request(`/mikrotik/servers/${encodeURIComponent(id)}/users${search ? `?search=${encodeURIComponent(search)}` : ''}`),
     mikrotikLive: (id) => request(`/mikrotik/servers/${encodeURIComponent(id)}/live`),
