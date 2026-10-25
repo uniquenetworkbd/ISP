@@ -1,0 +1,122 @@
+from datetime import datetime
+from decimal import Decimal
+
+from sqlalchemy import BigInteger, Boolean, DateTime, ForeignKey, Integer, Numeric, String, Text, func
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+
+
+class Base(DeclarativeBase):
+    pass
+
+
+class Zone(Base):
+    __tablename__ = "zones"
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    name: Mapped[str] = mapped_column(String(120), unique=True)
+    status: Mapped[str] = mapped_column(String(32), default="online")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class POP(Base):
+    __tablename__ = "pops"
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    zone_id: Mapped[int] = mapped_column(ForeignKey("zones.id"))
+    name: Mapped[str] = mapped_column(String(120))
+    status: Mapped[str] = mapped_column(String(32), default="online")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class Device(Base):
+    __tablename__ = "devices"
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    pop_id: Mapped[int | None] = mapped_column(ForeignKey("pops.id"), nullable=True)
+    name: Mapped[str] = mapped_column(String(160))
+    device_type: Mapped[str] = mapped_column(String(32))
+    vendor: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    model: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    management_address: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    status: Mapped[str] = mapped_column(String(32), default="unknown")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class PONPort(Base):
+    __tablename__ = "pon_ports"
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    olt_device_id: Mapped[int] = mapped_column(ForeignKey("devices.id"))
+    port_name: Mapped[str] = mapped_column(String(80))
+    status: Mapped[str] = mapped_column(String(32), default="unknown")
+    onu_count: Mapped[int] = mapped_column(Integer, default=0)
+
+
+class ONU(Base):
+    __tablename__ = "onus"
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    olt_device_id: Mapped[int] = mapped_column(ForeignKey("devices.id"))
+    pon_port_id: Mapped[int | None] = mapped_column(ForeignKey("pon_ports.id"), nullable=True)
+    serial_number: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    name: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    status: Mapped[str] = mapped_column(String(32), default="unknown")
+    rx_dbm: Mapped[Decimal | None] = mapped_column(Numeric(7, 2), nullable=True)
+    tx_dbm: Mapped[Decimal | None] = mapped_column(Numeric(7, 2), nullable=True)
+    temperature_c: Mapped[Decimal | None] = mapped_column(Numeric(7, 2), nullable=True)
+    distance_m: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
+
+class Metric(Base):
+    __tablename__ = "metrics"
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    device_id: Mapped[int] = mapped_column(ForeignKey("devices.id"))
+    metric_name: Mapped[str] = mapped_column(String(120))
+    metric_value: Mapped[Decimal | None] = mapped_column(Numeric, nullable=True)
+    unit: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    recorded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class Alert(Base):
+    __tablename__ = "alerts"
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    device_id: Mapped[int | None] = mapped_column(ForeignKey("devices.id"), nullable=True)
+    severity: Mapped[str] = mapped_column(String(32))
+    status: Mapped[str] = mapped_column(String(32), default="open")
+    title: Mapped[str] = mapped_column(String(255))
+    message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    detected_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class Role(Base):
+    __tablename__ = "roles"
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    name: Mapped[str] = mapped_column(String(80), unique=True)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+
+class User(Base):
+    __tablename__ = "users"
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    username: Mapped[str] = mapped_column(String(120), unique=True)
+    password_hash: Mapped[str] = mapped_column(Text)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class DeviceCredential(Base):
+    __tablename__ = "device_credentials"
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    device_id: Mapped[int] = mapped_column(ForeignKey("devices.id", ondelete="CASCADE"), unique=True)
+    secret_ref: Mapped[str] = mapped_column(String(255))
+    auth_mode: Mapped[str] = mapped_column(String(40), default="secret-ref")
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class AuditLog(Base):
+    __tablename__ = "audit_logs"
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    action: Mapped[str] = mapped_column(String(120))
+    resource_type: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    resource_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    details: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
