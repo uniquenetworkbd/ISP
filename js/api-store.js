@@ -46,5 +46,16 @@ window.ISPApp = window.ISPApp || {};
   }
   window.ISPApp.apiStore = { sync, restore, publish, loadMikroTikServers };
   restore();
-  window.addEventListener('isp:app-ready', () => { setTimeout(() => sync().catch(() => {}), 0); }, { once: true });
+  window.addEventListener('isp:app-ready', () => {
+    setTimeout(() => sync().catch(() => {}), 0);
+    // Keep backend-backed widgets fresh while the dashboard is open; API requests already have timeouts.
+    window.setInterval(() => {
+      if (document.visibilityState === 'visible' && window.ISPApp.apiClient?.isConfigured()) {
+        sync().catch(() => {});
+      }
+    }, 30000);
+  }, { once: true });
+  window.addEventListener('focus', () => {
+    if (window.ISPApp.apiClient?.isConfigured()) sync().catch(() => {});
+  });
 })();
