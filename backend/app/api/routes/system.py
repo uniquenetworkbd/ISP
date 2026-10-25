@@ -10,7 +10,7 @@ router = APIRouter()
 
 
 @router.get("/status")
-def system_status(db: Session = Depends(get_db)) -> JSONResponse | dict[str, str | bool]:
+def system_status(db: Session = Depends(get_db)):
     """Public frontend probe; reports real database reachability, not configured intent."""
     try:
         db.execute(text("SELECT 1"))
