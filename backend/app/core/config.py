@@ -43,8 +43,18 @@ def validate_production_configuration(
 
     if not allowed_origins:
         problems.append("ALLOWED_ORIGINS must contain the exact frontend origin")
-    elif any(not origin.startswith("https://") for origin in allowed_origins):
-        problems.append("Production ALLOWED_ORIGINS entries must use HTTPS")
+    else:
+        for origin in allowed_origins:
+            parsed_origin = urlparse(origin)
+            if (
+                parsed_origin.scheme != "https"
+                or not parsed_origin.hostname
+                or parsed_origin.path not in ("", "/")
+                or parsed_origin.query
+                or parsed_origin.fragment
+            ):
+                problems.append("Production ALLOWED_ORIGINS entries must be HTTPS origins without paths or query strings")
+                break
 
     if not encryption_key:
         problems.append("CREDENTIAL_ENCRYPTION_KEY must be configured")
