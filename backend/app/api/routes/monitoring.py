@@ -1,7 +1,9 @@
+import os
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import func, select
+from fastapi.responses import JSONResponse
+from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session
 
 from app.api.dependencies import require_roles
@@ -13,8 +15,36 @@ router = APIRouter()
 
 
 @router.get("/health")
-def monitoring_health() -> dict[str, str]:
-    return {"status": "ready", "mode": "database-backed"}
+def monitoring_health(db: Session = Depends(get_db)) -> dict:
+    """Report real DB reachability and freshness of persisted telemetry."""
+    try:
+        db.execute(text("SELECT 1"))
+        latest = db.scalar(select(func.max(Metric.recorded_at)))
+    except Exception:
+        return JSONResponse(
+            status_code=503,
+            content={"status": "degraded", "database": "unavailable", "collector": "unknown"},
+        )
+
+    if latest is None:
+        collector = "no_samples_yet"
+        age_seconds = None
+    else:
+        observed_at = latest if latest.tzinfo else latest.replace(tzinfo=timezone.utc)
+        age_seconds = max(0, int((datetime.now(timezone.utc) - observed_at).total_seconds()))
+        try:
+            interval = max(5, int(os.getenv("MONITORING_INTERVAL_SECONDS", "60")))
+        except ValueError:
+            interval = 60
+        collector = "fresh" if age_seconds <= max(180, interval * 3) else "stale"
+
+    return {
+        "status": "ok",
+        "database": "ok",
+        "collector": collector,
+        "last_metric_at": latest.isoformat() if latest else None,
+        "last_metric_age_seconds": age_seconds,
+    }
 
 
 @router.get("/summary", response_model=MonitoringSummary)
