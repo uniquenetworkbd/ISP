@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from urllib.parse import urlsplit
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import delete, select
@@ -30,24 +31,18 @@ def _server_read(db: Session, device: Device) -> MikroTikServerRead:
     credential = db.scalar(select(DeviceCredential).where(DeviceCredential.device_id == device.id))
     user_count = len(db.scalars(select(MikroTikUser.id).where(MikroTikUser.device_id == device.id)).all())
     address = device.management_address or ""
-    server_ip = address.removeprefix("https://").removeprefix("http://").removesuffix("/rest")
-    port = 443
-    if ":" in server_ip and server_ip.rsplit(":", 1)[-1].isdigit():
-        host, raw_port = server_ip.rsplit(":", 1)
-        server_ip, port = host, int(raw_port)
-    username = "stored credential"
-    if credential and credential.encrypted_username:
-        try:
-            username = decrypt_secret(credential.encrypted_username)
-        except CredentialEncryptionError:
-            username = "credential unavailable"
+    parsed = urlsplit(address if "://" in address else f"https://{address}")
+    protocol = {"https": "rest", "http": "rest", "routeros-api": "api", "routeros-api-ssl": "api_ssl"}.get(parsed.scheme, "rest")
+    server_ip = parsed.hostname or ""
+    port = parsed.port or {"rest": 443, "api": 8728, "api_ssl": 8729}[protocol]
     return MikroTikServerRead(
-        id=device.id, name=device.name, server_ip=server_ip, username=username, port=port,
-        timeout_seconds=device.timeout_seconds, access_mode=device.access_mode, vendor=device.vendor or "mikrotik",
+        id=device.id, name=device.name, server_ip=server_ip,
+        username="credential configured" if credential else "not configured",
+        protocol=protocol, port=port, timeout_seconds=device.timeout_seconds,
+        access_mode=device.access_mode, vendor=device.vendor or "mikrotik",
         model=device.model, routeros_version=device.routeros_version, status=device.status,
         last_scan_at=device.last_scan_at, last_live_at=device.last_live_at, user_count=user_count,
     )
-
 
 @router.get("/servers", response_model=dict[str, list[MikroTikServerRead]])
 def list_servers(db: Session = Depends(get_db), _user: User = Depends(require_roles("admin", "operator", "viewer"))):
