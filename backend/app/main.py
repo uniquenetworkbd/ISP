@@ -1,3 +1,5 @@
+import os
+
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
@@ -11,7 +13,7 @@ from app.api.routes.monitoring import router as monitoring_router
 from app.api.routes.network import router as network_router
 from app.api.routes.olt import router as olt_router
 from app.api.routes.system import router as system_router
-from app.core.config import settings
+from app.core.config import settings, validate_production_configuration
 from app.db import get_db
 
 app = FastAPI(title=settings.app_name, version=settings.app_version)
@@ -43,3 +45,14 @@ def health() -> dict[str, str]:
 def readiness(db: Session = Depends(get_db)) -> dict[str, str]:
     db.execute(text("SELECT 1"))
     return {"status": "ready", "service": settings.app_name, "database": "ok"}
+
+
+@app.on_event("startup")
+def validate_runtime_configuration() -> None:
+    validate_production_configuration(
+        app_env=settings.app_env,
+        database_url=settings.database_url,
+        allowed_origins=settings.allowed_origins,
+        jwt_secret=settings.jwt_secret,
+        encryption_key=os.getenv("CREDENTIAL_ENCRYPTION_KEY"),
+    )
