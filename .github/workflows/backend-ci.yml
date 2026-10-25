@@ -15,6 +15,9 @@ on:
     paths:
       - 'backend/**'
       - 'database/**'
+      - 'js/**'
+      - 'css/**'
+      - 'index.html'
       - '.devcontainer/**'
       - '.github/workflows/backend-ci.yml'
 
