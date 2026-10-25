@@ -87,3 +87,31 @@ class MikroTikUserRead(BaseModel):
     last_live_ip: str | None
     last_live_uptime: str | None
     last_synced_at: datetime
+
+
+OLTVendor = Literal["huawei", "zte", "vsol", "bdcom"]
+
+
+class OLTConnectionTest(BaseModel):
+    host: str = Field(min_length=1, max_length=255)
+    community: str = Field(min_length=1, max_length=255)
+    port: int = Field(default=161, ge=1, le=65535)
+    timeout_seconds: float = Field(default=3, ge=0.5, le=30)
+    vendor: OLTVendor = "vsol"
+
+
+class OLTServerCreate(OLTConnectionTest):
+    name: str = Field(min_length=1, max_length=160)
+    model: str | None = Field(default=None, max_length=120)
+    pop_id: int | None = Field(default=None, ge=1)
+
+
+class OLTServerRead(BaseModel):
+    id: int
+    name: str
+    host: str
+    port: int
+    vendor: str
+    model: str | None
+    status: str
+    last_live_at: datetime | None
