@@ -48,7 +48,7 @@ jobs:
       - name: Validate changed frontend JavaScript syntax
         working-directory: .
         run: |
-          for file in js/app.js js/router.js js/components/navigation-architecture.js js/components/mikrotik-server-manager.js js/components/mikrotik-operations.js js/components/olt-connection-page.js js/components/olt-operations.js; do
+          for file in js/app.js js/router.js js/components/navigation-architecture.js js/components/mikrotik-server-manager.js js/components/mikrotik-operations.js js/components/olt-connection-page.js js/components/olt-operations.js js/components/onu-dashboard.js js/components/interface-monitoring.js js/components/alert-center.js js/components/analytics-reports.js js/components/management-ui.js; do
             node --check "$file"
           done
       - uses: actions/setup-python@v5
