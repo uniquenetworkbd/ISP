@@ -13,15 +13,31 @@ services:
       timeout: 5s
       retries: 5
 
+  migrate:
+    build: .
+    env_file:
+      - .env
+    command: ["alembic", "upgrade", "head"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
   backend:
     build: .
     env_file:
       - .env
     depends_on:
-      postgres:
-        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     ports:
       - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   monitor:
     build: .
@@ -29,7 +45,9 @@ services:
       - .env
     command: ["python", "-m", "app.scheduler"]
     depends_on:
-      postgres:
+      migrate:
+        condition: service_completed_successfully
+      backend:
         condition: service_healthy
 
 volumes:
