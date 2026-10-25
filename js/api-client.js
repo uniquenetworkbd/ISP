@@ -3,22 +3,68 @@ window.ISPApp = window.ISPApp || {};
 (function () {
   const config = window.ISPApp.api || {};
   const baseUrl = (config.baseUrl || '').replace(/\/$/, '');
+  const tokenKey = config.tokenKey || 'isp_access_token';
 
-  async function request(path, options = {}) {
-    const response = await fetch(`${baseUrl}/api${path}`, {
-      ...options,
-      headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
-    });
-    if (!response.ok) throw new Error(`API request failed: ${response.status}`);
-    return response.json();
+  function authHeaders() {
+    const token = window.localStorage.getItem(tokenKey);
+    return token ? { Authorization: `Bearer ${token}` } : {};
   }
 
-  window.ISPApp.apiClient = {
+  async function request(path, options = {}) {
+    const headers = {
+      Accept: 'application/json',
+      ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+      ...authHeaders(),
+      ...(options.headers || {}),
+    };
+    const response = await fetch(`${baseUrl}/api${path}`, { ...options, headers });
+    let payload = null;
+    try { payload = await response.json(); } catch (_) { payload = null; }
+    if (!response.ok) {
+      const message = payload?.detail || `API request failed: ${response.status}`;
+      const error = new Error(message);
+      error.status = response.status;
+      error.payload = payload;
+      throw error;
+    }
+    return payload;
+  }
+
+  const apiClient = {
+    isConfigured: () => Boolean(baseUrl),
+    getBaseUrl: () => baseUrl,
+    request,
+    login: async (username, password) => {
+      const result = await request('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ username, password }),
+      });
+      if (result?.access_token) window.localStorage.setItem(tokenKey, result.access_token);
+      return result;
+    },
+    logout: () => window.localStorage.removeItem(tokenKey),
+    me: () => request('/auth/me'),
+    roles: () => request('/auth/roles'),
     listDevices: () => request('/devices/'),
-    createDevice: (device) => request('/devices/', {
-      method: 'POST',
-      body: JSON.stringify(device),
-    }),
+    getDevice: (id) => request(`/devices/${encodeURIComponent(id)}`),
+    createDevice: (device) => request('/devices/', { method: 'POST', body: JSON.stringify(device) }),
     monitoringHealth: () => request('/monitoring/health'),
+    monitoringSummary: () => request('/monitoring/summary'),
+    metrics: (params = {}) => {
+      const query = new URLSearchParams(params).toString();
+      return request(`/monitoring/metrics${query ? `?${query}` : ''}`);
+    },
+    alerts: (params = {}) => {
+      const query = new URLSearchParams(params).toString();
+      return request(`/monitoring/alerts${query ? `?${query}` : ''}`);
+    },
+    acknowledgeAlert: (id) => request(`/monitoring/alerts/${encodeURIComponent(id)}/acknowledge`, { method: 'POST' }),
+    resolveAlert: (id) => request(`/monitoring/alerts/${encodeURIComponent(id)}/resolve`, { method: 'POST' }),
+    zones: () => request('/network/zones'),
+    pops: (zoneId) => request(`/network/pops${zoneId == null ? '' : `?zone_id=${encodeURIComponent(zoneId)}`}`),
+    topology: () => request('/network/topology'),
+    databaseHealth: () => request('/database/health'),
   };
+
+  window.ISPApp.apiClient = apiClient;
 })();
