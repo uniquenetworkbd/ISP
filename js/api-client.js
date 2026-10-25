@@ -35,10 +35,7 @@ window.ISPApp = window.ISPApp || {};
     getBaseUrl: () => baseUrl,
     request,
     login: async (username, password) => {
-      const result = await request('/auth/login', {
-        method: 'POST',
-        body: JSON.stringify({ username, password }),
-      });
+      const result = await request('/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) });
       if (result?.access_token) window.localStorage.setItem(tokenKey, result.access_token);
       return result;
     },
@@ -50,20 +47,20 @@ window.ISPApp = window.ISPApp || {};
     createDevice: (device) => request('/devices/', { method: 'POST', body: JSON.stringify(device) }),
     monitoringHealth: () => request('/monitoring/health'),
     monitoringSummary: () => request('/monitoring/summary'),
-    metrics: (params = {}) => {
-      const query = new URLSearchParams(params).toString();
-      return request(`/monitoring/metrics${query ? `?${query}` : ''}`);
-    },
-    alerts: (params = {}) => {
-      const query = new URLSearchParams(params).toString();
-      return request(`/monitoring/alerts${query ? `?${query}` : ''}`);
-    },
+    metrics: (params = {}) => { const query = new URLSearchParams(params).toString(); return request(`/monitoring/metrics${query ? `?${query}` : ''}`); },
+    alerts: (params = {}) => { const query = new URLSearchParams(params).toString(); return request(`/monitoring/alerts${query ? `?${query}` : ''}`); },
     acknowledgeAlert: (id) => request(`/monitoring/alerts/${encodeURIComponent(id)}/acknowledge`, { method: 'POST' }),
     resolveAlert: (id) => request(`/monitoring/alerts/${encodeURIComponent(id)}/resolve`, { method: 'POST' }),
     zones: () => request('/network/zones'),
     pops: (zoneId) => request(`/network/pops${zoneId == null ? '' : `?zone_id=${encodeURIComponent(zoneId)}`}`),
     topology: () => request('/network/topology'),
     databaseHealth: () => request('/database/health'),
+    mikrotikServers: () => request('/mikrotik/servers'),
+    mikrotikTestConnection: (payload) => request('/mikrotik/test-connection', { method: 'POST', body: JSON.stringify(payload) }),
+    mikrotikCreateServer: (payload) => request('/mikrotik/servers', { method: 'POST', body: JSON.stringify(payload) }),
+    mikrotikScan: (id) => request(`/mikrotik/servers/${encodeURIComponent(id)}/scan`, { method: 'POST' }),
+    mikrotikUsers: (id, search = '') => request(`/mikrotik/servers/${encodeURIComponent(id)}/users${search ? `?search=${encodeURIComponent(search)}` : ''}`),
+    mikrotikLive: (id) => request(`/mikrotik/servers/${encodeURIComponent(id)}/live`),
   };
 
   window.ISPApp.apiClient = apiClient;
