@@ -50,6 +50,7 @@ window.ISPApp = window.ISPApp || {};
     isConfigured: () => Boolean(baseUrl),
     getBaseUrl: () => baseUrl,
     request,
+    systemStatus: () => request('/system/status'),
     login: async (username, password) => {
       const result = await request('/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) });
       if (result?.access_token) window.localStorage.setItem(tokenKey, result.access_token);
