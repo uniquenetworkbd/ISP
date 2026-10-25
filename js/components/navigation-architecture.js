@@ -15,6 +15,8 @@ window.ISPApp=window.ISPApp||{};
     reports:['▤','Reports'],devices:['▣','Devices'],system:['⚙','System'],modules:['◫','Module Manager']
   };
   const expected=groups.flatMap(g=>g.routes);
+  let observer=null;
+  let syncing=false;
   function ensureLink(route){
     const nav=document.getElementById('primaryNav');if(!nav)return null;
     let link=nav.querySelector(`[data-route="${CSS.escape(route)}"]`);
@@ -32,35 +34,38 @@ window.ISPApp=window.ISPApp||{};
     return link;
   }
   function sync(){
+    if(syncing)return;
     const nav=document.getElementById('primaryNav');if(!nav)return;
-    expected.forEach(ensureLink);
-    const byRoute=new Map([...nav.querySelectorAll('[data-route]')].map(a=>[a.dataset.route,a]));
-    const desired=[];
-    groups.forEach(group=>{
-      const label=document.createElement('div');
-      label.className='nav-group-label';
-      label.dataset.navGroup=group.key;
-      label.textContent=group.label;
-      desired.push(label);
-      group.routes.forEach(route=>{const link=byRoute.get(route)||ensureLink(route);if(link)desired.push(link)});
-    });
-    const current=Array.from(nav.children);
-    const unchanged=current.length===desired.length&&current.every((node,i)=>node===desired[i]&&node.nodeType===desired[i].nodeType&&node.dataset?.route===desired[i].dataset?.route&&node.dataset?.navGroup===desired[i].dataset?.navGroup);
-    if(!unchanged){
-      observer?.disconnect();
-      nav.replaceChildren(...desired);
-      observer?.observe(nav,{childList:true});
-    }
-    nav.dataset.architectureReady='true';
-    nav.setAttribute('aria-label','Primary navigation');
-    const sidebar=document.getElementById('sidebar');
-    sidebar?.querySelectorAll('.sidebar-section-label').forEach(x=>x.hidden=true);
-    sidebar?.querySelectorAll('.sidebar > .nav:not(#primaryNav)').forEach(x=>x.hidden=true);
-    const footer=sidebar?.querySelector('.sidebar-footer');
-    if(footer)footer.querySelector('span:last-child')?.replaceChildren(document.createTextNode(`Frontend build ${window.ISPApp.buildVersion||'unknown'} • Modular page architecture`));
-    window.ISPApp.router?.apply?.();
+    syncing=true;
+    try{
+      expected.forEach(ensureLink);
+      const byRoute=new Map([...nav.querySelectorAll('[data-route]')].map(a=>[a.dataset.route,a]));
+      const desired=[];
+      groups.forEach(group=>{
+        const label=document.createElement('div');
+        label.className='nav-group-label';
+        label.dataset.navGroup=group.key;
+        label.textContent=group.label;
+        desired.push(label);
+        group.routes.forEach(route=>{const link=byRoute.get(route)||ensureLink(route);if(link)desired.push(link)});
+      });
+      const current=Array.from(nav.children);
+      const unchanged=current.length===desired.length&&current.every((node,i)=>node===desired[i]&&node.nodeType===desired[i].nodeType&&node.dataset?.route===desired[i].dataset?.route&&node.dataset?.navGroup===desired[i].dataset?.navGroup);
+      if(!unchanged){
+        observer?.disconnect();
+        nav.replaceChildren(...desired);
+        observer?.observe(nav,{childList:true});
+      }
+      nav.dataset.architectureReady='true';
+      nav.setAttribute('aria-label','Primary navigation');
+      const sidebar=document.getElementById('sidebar');
+      sidebar?.querySelectorAll('.sidebar-section-label').forEach(x=>x.hidden=true);
+      sidebar?.querySelectorAll('.sidebar > .nav:not(#primaryNav)').forEach(x=>x.hidden=true);
+      const footer=sidebar?.querySelector('.sidebar-footer');
+      if(footer)footer.querySelector('span:last-child')?.replaceChildren(document.createTextNode(`Frontend build ${window.ISPApp.buildVersion||'unknown'} • Modular page architecture`));
+      if(!unchanged)window.ISPApp.router?.apply?.();
+    }finally{syncing=false}
   }
-  let observer=null;
   function init(){
     const nav=document.getElementById('primaryNav');if(!nav)return;
     observer=new MutationObserver(()=>sync());
