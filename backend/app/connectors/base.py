@@ -13,6 +13,7 @@ class ConnectorContext:
     device_type: str
     endpoint: str | None = None
     secret_ref: str | None = None
+    credential: Any | None = None
 
 
 @dataclass
