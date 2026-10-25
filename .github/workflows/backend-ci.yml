@@ -6,6 +6,9 @@ on:
     paths:
       - 'backend/**'
       - 'database/**'
+      - 'js/**'
+      - 'css/**'
+      - 'index.html'
       - '.devcontainer/**'
       - '.github/workflows/backend-ci.yml'
   pull_request:
@@ -39,6 +42,12 @@ jobs:
       DATABASE_URL: postgresql+psycopg://isp:isp@localhost:5432/isp
     steps:
       - uses: actions/checkout@v4
+      - name: Validate changed frontend JavaScript syntax
+        working-directory: .
+        run: |
+          for file in js/app.js js/router.js js/components/navigation-architecture.js js/components/mikrotik-server-manager.js js/components/mikrotik-operations.js js/components/olt-connection-page.js js/components/olt-operations.js; do
+            node --check "$file"
+          done
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
