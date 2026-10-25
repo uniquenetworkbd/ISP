@@ -1,3 +1,4 @@
+from typing import Literal
 from urllib.parse import urlparse
 
 from cryptography.fernet import Fernet
@@ -7,7 +8,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     app_name: str = "ISP NOC Backend"
     app_version: str = "0.1.0"
-    app_env: str = "development"
+    app_env: Literal["development", "test", "production"] = "development"
     database_url: str = "postgresql+psycopg://isp:isp@localhost:5432/isp"
     allowed_origins: list[str] = ["http://localhost:8000", "http://localhost:5173", "https://uniquenetworkbd.github.io"]
     jwt_secret: str = "dev-only-change-this-secret"
