@@ -38,6 +38,11 @@ class Device(Base):
     model: Mapped[str | None] = mapped_column(String(120), nullable=True)
     management_address: Mapped[str | None] = mapped_column(String(255), nullable=True)
     status: Mapped[str] = mapped_column(String(32), default="unknown")
+    consecutive_failures: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    circuit_state: Mapped[str] = mapped_column(String(16), default="closed", server_default="closed")
+    circuit_opened_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    circuit_next_probe_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_failure_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
