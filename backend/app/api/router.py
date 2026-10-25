@@ -7,10 +7,12 @@ from app.api.routes.devices import router as devices_router
 from app.api.routes.mikrotik import router as mikrotik_router
 from app.api.routes.monitoring import router as monitoring_router
 from app.api.routes.network import router as network_router
+from app.api.routes.olt import router as olt_router
 
 api_router = APIRouter()
 api_router.include_router(auth_router, prefix="/auth", tags=["auth"])
 api_router.include_router(devices_router, prefix="/devices", tags=["devices"])
+api_router.include_router(olt_router, prefix="/olt", tags=["olt"])
 api_router.include_router(mikrotik_router, prefix="/mikrotik", tags=["mikrotik"])
 api_router.include_router(monitoring_router, prefix="/monitoring", tags=["monitoring"])
 api_router.include_router(network_router, prefix="/network", tags=["network"])
