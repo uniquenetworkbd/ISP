@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import os
 import time
 from collections.abc import Callable
@@ -8,6 +9,8 @@ from collections.abc import Callable
 from app.db import SessionLocal
 from app.workers.monitor import run_monitor_cycle
 
+
+logger = logging.getLogger(__name__)
 
 DEFAULT_INTERVAL_SECONDS = 60
 
@@ -38,7 +41,12 @@ async def run_forever(
     stop = stop_event or asyncio.Event()
     while not stop.is_set():
         started = time.monotonic()
-        await asyncio.to_thread(cycle)
+        try:
+            result = await asyncio.to_thread(cycle)
+            logger.info("Monitoring cycle completed: %s", result)
+        except Exception:
+            # A transient database or collector error must not permanently kill the worker.
+            logger.exception("Monitoring cycle failed; worker will retry after the configured interval")
         elapsed = time.monotonic() - started
         try:
             await asyncio.wait_for(stop.wait(), timeout=max(0, interval - elapsed))
