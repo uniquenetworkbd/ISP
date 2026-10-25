@@ -42,8 +42,14 @@ def health() -> dict[str, str]:
 
 
 @app.get("/health/ready", tags=["system"])
-def readiness(db: Session = Depends(get_db)) -> dict[str, str]:
-    db.execute(text("SELECT 1"))
+def readiness(db: Session = Depends(get_db)):
+    try:
+        db.execute(text("SELECT 1"))
+    except Exception:
+        return JSONResponse(
+            status_code=503,
+            content={"status": "not_ready", "service": settings.app_name, "database": "unavailable"},
+        )
     return {"status": "ready", "service": settings.app_name, "database": "ok"}
 
 
