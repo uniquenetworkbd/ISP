@@ -9,7 +9,6 @@ CLIENT = ROOT / "js" / "api-client.js"
 JS_ROOT = ROOT / "js"
 
 client = CLIENT.read_text(encoding="utf-8")
-# The API client is a plain object literal. Match keys at the object indentation.
 declared = set(re.findall(r"^\s{4}([A-Za-z_$][\w$]*)\s*:", client, re.MULTILINE))
 if not declared:
     raise SystemExit("No API client methods found")
@@ -26,13 +25,13 @@ for path in sorted(JS_ROOT.rglob("*.js")):
         if method not in declared:
             line = source.count("\n", 0, match.start()) + 1
             errors.append(f"{path.relative_to(ROOT)}:{line}: api.{method}() is not declared in js/api-client.js")
-    if path.name == "mikrotik-connection-page.js":
-        if "querySelector('[data-mikrotik-form]')" not in source:
-            errors.append("MikroTik form selector is missing or malformed")
+    if path.name == "mikrotik-login-page.js":
+        if "document.querySelector('[data-mk-form]')" not in source:
+            errors.append("Loaded MikroTik form selector is missing or malformed")
         if "api.mikrotikTestConnection(" not in source or "api.mikrotikCreateServer(" not in source:
-            errors.append("MikroTik page must use the declared test/save API methods")
-        if 'value="read_write"' in source:
-            errors.append("MikroTik access mode uses unsupported value read_write")
+            errors.append("Loaded MikroTik page must use the declared test/save API methods")
+        if "status('Saved & connected'" in source or "status('Saved & connected'," in source:
+            errors.append("MikroTik save action must not claim a live connection before a successful probe")
 
 if errors:
     print("Frontend API contract validation failed:")
