@@ -23,6 +23,10 @@ CIRCUIT_POLICY = CircuitPolicy(failure_threshold=3, cooldown_seconds=60, half_op
 RETRY_POLICY = RetryPolicy(attempts=3, initial_delay_seconds=0.25, backoff_factor=2.0, timeout_seconds=10.0)
 
 
+class _CollectionFailure(RuntimeError):
+    pass
+
+
 def _breaker_from_device(device: Device) -> CircuitBreaker:
     return CircuitBreaker(
         state=CircuitState(device.circuit_state or CircuitState.CLOSED),
@@ -41,17 +45,28 @@ def _persist_breaker(device: Device, breaker: CircuitBreaker) -> None:
 
 
 def _collect_with_retry(connector_manager, context: ConnectorContext) -> ConnectorResult:
+    last_result: ConnectorResult | None = None
+
+    def collect_once() -> ConnectorResult:
+        nonlocal last_result
+        result = connector_manager.collect(context)
+        last_result = result
+        if not result.ok:
+            raise _CollectionFailure("connector returned a non-ok result")
+        return result
+
     try:
-        return retry_call(
-            lambda: connector_manager.collect(context),
-            RETRY_POLICY,
-        )
+        return retry_call(collect_once, RETRY_POLICY)
     except Exception:
+        observed_at = last_result.observed_at if last_result else datetime.now(timezone.utc)
+        errors = last_result.errors if last_result and last_result.errors else [
+            "Connector collection failed after bounded retries."
+        ]
         return ConnectorResult(
             status="error",
             device_id=context.device_id,
-            observed_at=datetime.now(timezone.utc),
-            errors=["Connector collection failed after bounded retries."],
+            observed_at=observed_at,
+            errors=errors,
         )
 
 
