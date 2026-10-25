@@ -1,6 +1,6 @@
 """Persist per-device monitoring resilience state.
 
-Revision ID: 0002_device_monitoring_resilience
+Revision ID: 0002_resilience
 Revises: 0001_initial_schema
 """
 from typing import Sequence, Union
@@ -8,7 +8,7 @@ from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
 
-revision: str = "0002_device_monitoring_resilience"
+revision: str = "0002_resilience"
 down_revision: Union[str, Sequence[str], None] = "0001_initial_schema"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
