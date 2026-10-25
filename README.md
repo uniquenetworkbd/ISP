@@ -32,6 +32,16 @@ Requirements: Docker Engine with the Compose plugin.
 
 Compose starts PostgreSQL, runs Alembic migrations, then starts the API and monitoring worker.
 
+## Production configuration guard
+
+Set `APP_ENV=production` only after configuring a reachable production PostgreSQL host, an HTTPS-only exact `ALLOWED_ORIGINS` list, a unique random `JWT_SECRET` (at least 32 characters), and a valid generated Fernet `CREDENTIAL_ENCRYPTION_KEY`. In production mode the API refuses to start when these critical settings are missing or unsafe. Keep real secrets in the host's secret manager/environment, never in Git.
+
+Generate a Fernet key with:
+
+```bash
+python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+```
+
 ## Create the first administrator
 
 Run this on the backend host, after the database migrations have completed. Set a unique username and a strong password in the environment; do not commit real credentials.
