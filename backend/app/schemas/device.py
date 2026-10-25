@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Literal
 
 from pydantic import BaseModel, Field
@@ -22,8 +23,8 @@ class DeviceRead(DeviceCreate):
     id: int
     status: str
     routeros_version: str | None = None
-    last_scan_at: str | None = None
-    last_live_at: str | None = None
+    last_scan_at: datetime | None = None
+    last_live_at: datetime | None = None
 
 
 class MikroTikServerCreate(BaseModel):
@@ -51,8 +52,8 @@ class MikroTikServerRead(BaseModel):
     model: str | None
     routeros_version: str | None
     status: str
-    last_scan_at: str | None
-    last_live_at: str | None
+    last_scan_at: datetime | None
+    last_live_at: datetime | None
     user_count: int
 
 
@@ -70,7 +71,7 @@ class MikroTikScanResult(BaseModel):
     users_created: int
     users_updated: int
     active_users: int
-    synced_at: str
+    synced_at: datetime
 
 
 class MikroTikUserRead(BaseModel):
@@ -85,4 +86,4 @@ class MikroTikUserRead(BaseModel):
     status_snapshot: str
     last_live_ip: str | None
     last_live_uptime: str | None
-    last_synced_at: str
+    last_synced_at: datetime
