@@ -11,6 +11,7 @@ from app.api.routes.auth import router as auth_router
 from app.api.routes.database import router as database_router
 from app.api.routes.devices import router as devices_router
 from app.api.routes.monitoring import router as monitoring_router
+from app.api.routes.mikrotik import router as mikrotik_router
 from app.api.routes.network import router as network_router
 from app.api.routes.olt import router as olt_router
 from app.api.routes.system import router as system_router
@@ -29,6 +30,7 @@ app.add_middleware(
 
 app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
 app.include_router(devices_router, prefix="/api/devices", tags=["devices"])
+app.include_router(mikrotik_router, prefix="/api/mikrotik", tags=["mikrotik"])
 app.include_router(olt_router, prefix="/api/olt", tags=["olt"])
 app.include_router(monitoring_router, prefix="/api/monitoring", tags=["monitoring"])
 app.include_router(network_router, prefix="/api/network", tags=["network"])
