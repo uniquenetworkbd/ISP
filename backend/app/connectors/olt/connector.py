@@ -1,11 +1,5 @@
-from app.connectors.base import DeviceConnection, DeviceConnector
+"""Compatibility import for the generic OLT SNMP connector."""
 
+from .base import OLTConnector
 
-class OLTConnector(DeviceConnector):
-    """Vendor-neutral OLT adapter boundary for future vendor drivers."""
-
-    def test_connection(self, connection: DeviceConnection) -> bool:
-        raise NotImplementedError("OLT transport is not enabled in the repository-only foundation")
-
-    def collect_health(self, connection: DeviceConnection) -> dict:
-        raise NotImplementedError("OLT transport is not enabled in the repository-only foundation")
+__all__ = ["OLTConnector"]
