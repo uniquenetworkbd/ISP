@@ -50,7 +50,7 @@ window.ISPApp = window.ISPApp || {};
       console.error('[ISP] Critical boot failure', error);
       return;
     }
-    const optional = ['js/api-ui-bridge.js','js/components/command-palette.js','js/components/notifications.js','js/components/network-map.js','js/components/mikrotik-dashboard.js','js/components/mikrotik-login-page.js','js/components/olt-connection-page.js','js/components/menu-system-v2.js','js/components/olt-dashboard.js','js/components/onu-dashboard.js','js/components/interface-monitoring.js','js/components/alert-center.js','js/components/analytics-reports.js','js/components/management-ui.js','js/components/reports-ui.js','js/components/frontend-finalizer.js','js/components/noc-enhancements.js','js/components/dashboard-workspace.js','js/components/module-manager.js','js/components/navigation-architecture.js'];
+    const optional = ['js/api-ui-bridge.js','js/components/command-palette.js','js/components/notifications.js','js/components/network-map.js','js/components/mikrotik-dashboard.js','js/components/mikrotik-login-page.js','js/components/olt-connection-page.js','js/components/access-session-page.js','js/components/menu-system-v2.js','js/components/olt-dashboard.js','js/components/onu-dashboard.js','js/components/interface-monitoring.js','js/components/alert-center.js','js/components/analytics-reports.js','js/components/management-ui.js','js/components/reports-ui.js','js/components/frontend-finalizer.js','js/components/noc-enhancements.js','js/components/dashboard-workspace.js','js/components/module-manager.js','js/components/navigation-architecture.js'];
     loadGroup(optional).then(() => {
       window.ISPApp.router?.apply?.();
       window.ISPApp.modules?.refresh?.();
