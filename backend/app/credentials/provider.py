@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+import os
 from dataclasses import dataclass
 from typing import Callable, Protocol
 
@@ -16,17 +18,26 @@ class CredentialProvider(Protocol):
 
 
 class SecretRefCredentialProvider:
-    """Credential boundary for injected secret resolvers.
+    """Resolve credentials through an injected resolver or environment secret.
 
-    The repository stores only a secret reference. The actual resolver is supplied
-    by the runtime that owns the secret store; this class never writes secrets to
-    the database, files, logs, or monitoring payloads.
+    The database stores only ``secret_ref``. A reference can point to a runtime
+    secret resolver, or to an environment variable containing a JSON object such
+    as ``{"username":"...","password":"..."}``. Secret values never enter
+    database records, logs, alert payloads, or API responses.
     """
 
     def __init__(self, resolver: Callable[[str], object | None] | None = None) -> None:
         self._resolver = resolver
 
     def resolve(self, reference: CredentialReference) -> object | None:
-        if not reference.secret_ref or self._resolver is None:
+        if not reference.secret_ref:
             return None
-        return self._resolver(reference.secret_ref)
+        if self._resolver is not None:
+            return self._resolver(reference.secret_ref)
+        raw = os.getenv(reference.secret_ref)
+        if not raw:
+            return None
+        try:
+            return json.loads(raw)
+        except json.JSONDecodeError:
+            return None
