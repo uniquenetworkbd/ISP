@@ -20,14 +20,12 @@ def apply_alert_lifecycle(
 ) -> dict[str, int]:
     """Persist one device's alert state using open/repeated/recovered/resolved transitions."""
     counters = {"created": 0, "repeated": 0, "reopened": 0, "recovered": 0, "resolved": 0}
-    existing = list(
-        db.scalars(
-            select(Alert).where(
-                Alert.device_id == device_id,
-                Alert.status.in_(ACTIVE_STATUSES),
-            )
+    existing = db.scalars(
+        select(Alert).where(
+            Alert.device_id == device_id,
+            Alert.status.in_(ACTIVE_STATUSES),
         )
-    )
+    ).all()
     by_key = {(item.title.strip().lower(), item.severity): item for item in existing}
     candidate_keys = {
         (str(item["title"]).strip().lower(), str(item["severity"])) for item in candidates
