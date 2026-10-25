@@ -3,13 +3,13 @@ window.ISPApp=window.ISPApp||{};
   const groups=[
     ['Command',['dashboard']],
     ['Visualization',['topology','map']],
-    ['Infrastructure Monitoring',['mikrotik','mikrotikServers','olt','onu','interfaces']],
+    ['Infrastructure Monitoring',['mikrotik','mikrotikServers','olt','oltServers','onu','interfaces']],
     ['Operations',['alerts','analytics','reports']],
     ['Management',['devices','system']],
     ['Module System',['modules']]
   ];
-  const labels={dashboard:'Command Center',topology:'Interactive Topology',map:'Network Map',mikrotik:'MikroTik Dashboard',mikrotikServers:'Add / Connect MikroTik',olt:'OLT / PON Dashboard',onu:'ONU Monitoring',interfaces:'Interface Monitoring',alerts:'Alert Center',analytics:'Analytics',reports:'Reports',devices:'Devices',system:'System',modules:'Module Manager'};
-  const icons={dashboard:'⌂',topology:'⌘',map:'⌖',mikrotik:'◈',mikrotikServers:'＋',olt:'◉',onu:'◇',interfaces:'⇄',alerts:'!',analytics:'◫',reports:'▤',devices:'▣',system:'⚙',modules:'▦'};
+  const labels={dashboard:'Command Center',topology:'Interactive Topology',map:'Network Map',mikrotik:'MikroTik Dashboard',mikrotikServers:'Add / Connect MikroTik',olt:'OLT / PON Dashboard',oltServers:'Add / Connect OLT',onu:'ONU Monitoring',interfaces:'Interface Monitoring',alerts:'Alert Center',analytics:'Analytics',reports:'Reports',devices:'Devices',system:'System',modules:'Module Manager'};
+  const icons={dashboard:'⌂',topology:'⌘',map:'⌖',mikrotik:'◈',mikrotikServers:'＋',olt:'◉',oltServers:'＋',onu:'◇',interfaces:'⇄',alerts:'!',analytics:'◫',reports:'▤',devices:'▣',system:'⚙',modules:'▦'};
   function render(){
     const nav=document.getElementById('primaryNav');
     if(!nav)return;
