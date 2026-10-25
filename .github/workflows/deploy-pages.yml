@@ -75,6 +75,9 @@ jobs:
           print("Frontend API endpoint: " + (base_url or "unconfigured (safe demo/offline mode)"))
           PY
 
+      - name: Validate frontend API contracts
+        run: python backend/scripts/validate_frontend_contracts.py
+
       - name: Validate frontend JavaScript syntax
         run: |
           set -euo pipefail
