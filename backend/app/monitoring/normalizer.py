@@ -6,6 +6,9 @@ from typing import Any
 from app.connectors.base import ConnectorResult
 
 
+_METADATA_FIELDS = {"host", "port", "protocol", "vendor_telemetry", "sys_descr", "sys_name"}
+
+
 _UNIT_BY_NAME = {
     "cpu_percent": "%",
     "memory_percent": "%",
@@ -21,6 +24,8 @@ def normalize_metrics(result: ConnectorResult) -> list[dict[str, Any]]:
     """Convert connector numeric payload fields into Metric-ready records."""
     records: list[dict[str, Any]] = []
     for name, value in result.data.items():
+        if name in _METADATA_FIELDS:
+            continue
         if isinstance(value, bool) or not isinstance(value, (int, float, Decimal)):
             continue
         records.append(
