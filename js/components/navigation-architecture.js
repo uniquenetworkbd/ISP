@@ -35,19 +35,22 @@ window.ISPApp=window.ISPApp||{};
     const nav=document.getElementById('primaryNav');if(!nav)return;
     expected.forEach(ensureLink);
     const byRoute=new Map([...nav.querySelectorAll('[data-route]')].map(a=>[a.dataset.route,a]));
-    const frag=document.createDocumentFragment();
+    const desired=[];
     groups.forEach(group=>{
       const label=document.createElement('div');
       label.className='nav-group-label';
       label.dataset.navGroup=group.key;
       label.textContent=group.label;
-      frag.appendChild(label);
-      group.routes.forEach(route=>{
-        const link=byRoute.get(route)||ensureLink(route);
-        if(link)frag.appendChild(link);
-      });
+      desired.push(label);
+      group.routes.forEach(route=>{const link=byRoute.get(route)||ensureLink(route);if(link)desired.push(link)});
     });
-    nav.replaceChildren(frag);
+    const current=Array.from(nav.children);
+    const unchanged=current.length===desired.length&&current.every((node,i)=>node===desired[i]&&node.nodeType===desired[i].nodeType&&node.dataset?.route===desired[i].dataset?.route&&node.dataset?.navGroup===desired[i].dataset?.navGroup);
+    if(!unchanged){
+      observer?.disconnect();
+      nav.replaceChildren(...desired);
+      observer?.observe(nav,{childList:true});
+    }
     nav.dataset.architectureReady='true';
     nav.setAttribute('aria-label','Primary navigation');
     const sidebar=document.getElementById('sidebar');
@@ -57,9 +60,12 @@ window.ISPApp=window.ISPApp||{};
     if(footer)footer.querySelector('span:last-child')?.replaceChildren(document.createTextNode(`Frontend build ${window.ISPApp.buildVersion||'unknown'} • Modular page architecture`));
     window.ISPApp.router?.apply?.();
   }
+  let observer=null;
   function init(){
     const nav=document.getElementById('primaryNav');if(!nav)return;
-    const observer=new MutationObserver(sync);observer.observe(nav,{childList:true});sync();
+    observer=new MutationObserver(()=>sync());
+    observer.observe(nav,{childList:true});
+    sync();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
