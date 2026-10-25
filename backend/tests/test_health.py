@@ -30,3 +30,19 @@ def test_readiness_checks_database() -> None:
     assert response.json()["status"] == "ready"
     assert response.json()["database"] == "ok"
     assert session.statements == ["SELECT 1"]
+
+
+def test_readiness_returns_503_when_database_check_fails() -> None:
+    class FailingSession:
+        def execute(self, statement):
+            raise RuntimeError("database unavailable")
+
+    app.dependency_overrides[get_db] = lambda: FailingSession()
+    try:
+        response = TestClient(app, raise_server_exceptions=False).get("/health/ready")
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 503
+    assert response.json()["status"] == "not_ready"
+    assert response.json()["database"] == "unavailable"
