@@ -10,6 +10,7 @@ from app.api.dependencies import require_roles
 from app.audit import record_audit
 from app.connectors.base import ConnectorContext
 from app.connectors.registry import build_default_connector_manager
+from app.connectors.olt.profiles import OLT_VENDOR_PROFILES
 from app.credentials.encrypted import CredentialEncryptionError, decrypt_secret, encrypt_secret
 from app.db import get_db
 from app.models import Alert, Device, DeviceCredential, Metric, ONU, PONPort, User
@@ -59,6 +60,27 @@ def _probe(host: str, port: int, vendor: str, community: str, timeout: float, de
             credential={"community": community, "timeout_seconds": timeout},
         )
     )
+
+
+@router.get("/profiles")
+def list_vendor_profiles(
+    _user: User = Depends(require_roles("admin", "operator", "viewer")),
+) -> dict:
+    return {
+        "items": [
+            {
+                "vendor": profile.vendor,
+                "device_types": list(profile.device_types),
+                "protocols": list(profile.protocols),
+                "profile_status": profile.profile_status,
+                "mib_profile_id": profile.mib_profile_id,
+                "capabilities": list(profile.capabilities),
+                "model_constraints": list(profile.model_constraints),
+                "vendor_telemetry_ready": profile.vendor_telemetry_ready,
+            }
+            for profile in sorted(OLT_VENDOR_PROFILES.values(), key=lambda item: item.vendor)
+        ]
+    }
 
 
 @router.get("/servers", response_model=dict[str, list[OLTServerRead]])
@@ -192,7 +214,6 @@ def delete_server(
     device = db.get(Device, server_id)
     if device is None or device.device_type != "olt":
         raise HTTPException(status_code=404, detail="OLT server not found")
-    # Remove child inventory even if an OLT has ONUs without a mapped PON-port row.
     db.execute(delete(ONU).where(ONU.olt_device_id == server_id))
     db.execute(delete(PONPort).where(PONPort.olt_device_id == server_id))
     db.execute(delete(DeviceCredential).where(DeviceCredential.device_id == server_id))
