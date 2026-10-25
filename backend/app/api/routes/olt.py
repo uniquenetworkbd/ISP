@@ -192,10 +192,9 @@ def delete_server(
     device = db.get(Device, server_id)
     if device is None or device.device_type != "olt":
         raise HTTPException(status_code=404, detail="OLT server not found")
-    pon_ids = db.scalars(select(PONPort.id).where(PONPort.olt_device_id == server_id)).all()
-    if pon_ids:
-        db.execute(delete(ONU).where(ONU.olt_device_id == server_id))
-        db.execute(delete(PONPort).where(PONPort.olt_device_id == server_id))
+    # Remove child inventory even if an OLT has ONUs without a mapped PON-port row.
+    db.execute(delete(ONU).where(ONU.olt_device_id == server_id))
+    db.execute(delete(PONPort).where(PONPort.olt_device_id == server_id))
     db.execute(delete(DeviceCredential).where(DeviceCredential.device_id == server_id))
     db.execute(delete(Metric).where(Metric.device_id == server_id))
     db.execute(delete(Alert).where(Alert.device_id == server_id))
