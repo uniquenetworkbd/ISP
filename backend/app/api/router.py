@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 
+from app.api.routes.audit import router as audit_router
 from app.api.routes.auth import router as auth_router
 from app.api.routes.database import router as database_router
 from app.api.routes.devices import router as devices_router
@@ -12,3 +13,4 @@ api_router.include_router(devices_router, prefix="/devices", tags=["devices"])
 api_router.include_router(monitoring_router, prefix="/monitoring", tags=["monitoring"])
 api_router.include_router(network_router, prefix="/network", tags=["network"])
 api_router.include_router(database_router, prefix="/database", tags=["database"])
+api_router.include_router(audit_router, prefix="/audit", tags=["audit"])
