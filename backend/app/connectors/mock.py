@@ -14,6 +14,12 @@ class MockConnector(DeviceConnector):
         return ConnectorResult(
             status="ok",
             device_id=context.device_id,
-            data={"source": "mock", "reachable": True},
+            data={
+                "source": "mock",
+                "reachable": True,
+                "cpu_percent": 18.5,
+                "memory_percent": 41.0,
+                "traffic_mbps": 125.0,
+            },
             capabilities=self.capabilities(),
         )
