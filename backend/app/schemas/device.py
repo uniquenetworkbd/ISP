@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 DeviceType = Literal["mikrotik", "olt", "onu", "switch", "interface"]
@@ -27,17 +27,27 @@ class DeviceRead(DeviceCreate):
     last_live_at: datetime | None = None
 
 
+MikroTikProtocol = Literal["rest", "api", "api_ssl"]
+
+
 class MikroTikServerCreate(BaseModel):
     name: str = Field(min_length=1, max_length=160)
     server_ip: str = Field(min_length=1, max_length=255)
     username: str = Field(min_length=1, max_length=120)
     password: str = Field(min_length=1, max_length=512)
-    port: int = Field(default=443, ge=1, le=65535)
+    protocol: MikroTikProtocol = "rest"
+    port: int | None = Field(default=None, ge=1, le=65535)
     timeout_seconds: int = Field(default=10, ge=1, le=120)
     access_mode: AccessMode = "read"
     vendor: str = "mikrotik"
     model: str | None = None
     pop_id: int | None = None
+
+    @model_validator(mode="after")
+    def set_protocol_port(self):
+        if self.port is None:
+            self.port = {"rest": 443, "api": 8728, "api_ssl": 8729}[self.protocol]
+        return self
 
 
 class MikroTikServerRead(BaseModel):
@@ -45,6 +55,7 @@ class MikroTikServerRead(BaseModel):
     name: str
     server_ip: str
     username: str
+    protocol: MikroTikProtocol = "rest"
     port: int
     timeout_seconds: int
     access_mode: AccessMode
@@ -58,11 +69,18 @@ class MikroTikServerRead(BaseModel):
 
 
 class MikroTikConnectionTest(BaseModel):
-    server_ip: str
-    username: str
-    password: str
-    port: int = Field(default=443, ge=1, le=65535)
+    server_ip: str = Field(min_length=1, max_length=255)
+    username: str = Field(min_length=1, max_length=120)
+    password: str = Field(min_length=1, max_length=512)
+    protocol: MikroTikProtocol = "rest"
+    port: int | None = Field(default=None, ge=1, le=65535)
     timeout_seconds: int = Field(default=10, ge=1, le=120)
+
+    @model_validator(mode="after")
+    def set_protocol_port(self):
+        if self.port is None:
+            self.port = {"rest": 443, "api": 8728, "api_ssl": 8729}[self.protocol]
+        return self
 
 
 class MikroTikScanResult(BaseModel):
