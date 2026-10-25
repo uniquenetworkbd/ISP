@@ -26,3 +26,20 @@ def test_scheduler_runs_cycle_until_stopped() -> None:
         return calls
 
     assert asyncio.run(scenario()) == [1]
+
+
+def test_scheduler_survives_a_failed_cycle_and_stops_cleanly(caplog) -> None:
+    async def scenario() -> list[str]:
+        calls: list[str] = []
+        stop = asyncio.Event()
+
+        def cycle() -> dict[str, int]:
+            calls.append("failed")
+            stop.set()
+            raise RuntimeError("transient database outage")
+
+        await run_forever(interval_seconds=5, cycle=cycle, stop_event=stop)
+        return calls
+
+    assert asyncio.run(scenario()) == ["failed"]
+    assert "Monitoring cycle failed" in caplog.text
