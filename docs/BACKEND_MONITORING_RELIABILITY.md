@@ -2,7 +2,7 @@
 
 ## Scope
 
-This phase adds deterministic reliability primitives without connecting to live MikroTik or OLT devices.
+This phase adds deterministic reliability primitives and persistent alert lifecycle management without connecting to live MikroTik or OLT devices.
 
 ## Retry policy
 
@@ -16,7 +16,29 @@ The reliability helper records an operation budget. Future network transports mu
 
 Alert candidates receive a deterministic fingerprint from device, severity, and normalized title. Candidates duplicated during one monitoring cycle are collapsed before persistence.
 
-Future recovery-state work will extend this to persisted open-alert matching and recovery/resolve transitions.
+## Persistent alert lifecycle
+
+Existing database fields are sufficient for the first lifecycle implementation:
+
+```text
+open
+  ├── repeated → open
+  ├── recovered → recovered
+  └── reopened → open
+
+recovered → resolved
+```
+
+Rules:
+
+1. A new condition creates one `open` alert.
+2. A repeated condition updates the existing alert instead of creating another row.
+3. A condition that disappears changes `open` to `recovered` and records `resolved_at` as the recovery observation time.
+4. A second clean cycle changes `recovered` to `resolved`.
+5. If the condition returns while `recovered`, the same alert is reopened and `resolved_at` is cleared.
+6. Different severity/title combinations remain separate alert identities.
+
+This deliberately avoids a schema migration at this stage; the existing `alerts.status` and `resolved_at` fields already support the state machine.
 
 ## Scheduler boundary
 
