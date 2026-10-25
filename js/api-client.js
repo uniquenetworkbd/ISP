@@ -72,6 +72,7 @@ window.ISPApp = window.ISPApp || {};
     pops: (zoneId) => request(`/network/pops${zoneId == null ? '' : `?zone_id=${encodeURIComponent(zoneId)}`}`),
     topology: () => request('/network/topology'),
     databaseHealth: () => request('/database/health'),
+    oltProfiles: () => request('/olt/profiles'),
     oltServers: () => request('/olt/servers'),
     oltTestConnection: (payload) => request('/olt/test-connection', { method: 'POST', body: JSON.stringify(payload) }),
     oltCreateServer: (payload) => request('/olt/servers', { method: 'POST', body: JSON.stringify(payload) }),
