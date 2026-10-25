@@ -6,6 +6,16 @@ window.ISPApp = window.ISPApp || {};
   }
 
   function render(state) {
+    const source = document.getElementById('dataSourceBadge');
+    if (source) {
+      if (state?.connected && state?.summary) {
+        source.textContent = 'Live backend data';
+        source.className = 'badge success';
+      } else {
+        source.textContent = state?.mode === 'unconfigured' ? 'Demo data · API not configured' : 'Demo data · Backend not verified';
+        source.className = 'badge warning';
+      }
+    }
     if (!state?.connected || !state.summary) return;
     const summary = state.summary;
     const devices = Array.isArray(state.devices) ? state.devices : [];
