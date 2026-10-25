@@ -15,7 +15,7 @@ router = APIRouter()
 
 
 @router.get("/health")
-def monitoring_health(db: Session = Depends(get_db)) -> dict:
+def monitoring_health(db: Session = Depends(get_db)):
     """Report real DB reachability and freshness of persisted telemetry."""
     try:
         db.execute(text("SELECT 1"))
