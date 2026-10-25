@@ -3,6 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.api.dependencies import require_roles
+from app.audit import record_audit
 from app.db import get_db
 from app.models import Device, User
 from app.schemas.device import DeviceCreate, DeviceRead
@@ -23,10 +24,19 @@ def list_devices(
 def create_device(
     payload: DeviceCreate,
     db: Session = Depends(get_db),
-    _user: User = Depends(require_roles("admin", "operator")),
+    user: User = Depends(require_roles("admin", "operator")),
 ) -> DeviceRead:
     device = Device(**payload.model_dump(), status="unknown")
     db.add(device)
+    db.flush()
+    record_audit(
+        db,
+        action="device.created",
+        user_id=user.id,
+        resource_type="device",
+        resource_id=device.id,
+        details={"device_type": device.device_type, "vendor": device.vendor},
+    )
     db.commit()
     db.refresh(device)
     return DeviceRead.model_validate(device, from_attributes=True)
