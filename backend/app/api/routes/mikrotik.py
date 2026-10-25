@@ -20,8 +20,10 @@ router = APIRouter()
 connector = MikroTikConnector()
 
 
-def _endpoint(server_ip: str, port: int) -> str:
-    return f"https://{server_ip}:{port}"
+def _endpoint(server_ip: str, port: int, protocol: str = "rest") -> str:
+    scheme = {"rest": "https", "api": "routeros-api", "api_ssl": "routeros-api-ssl"}[protocol]
+    suffix = "/rest" if protocol == "rest" else ""
+    return f"{scheme}://{server_ip}:{port}{suffix}"
 
 
 def _server_read(db: Session, device: Device) -> MikroTikServerRead:
