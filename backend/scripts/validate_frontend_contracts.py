@@ -9,7 +9,7 @@ CLIENT = ROOT / "js" / "api-client.js"
 JS_ROOT = ROOT / "js"
 
 client = CLIENT.read_text(encoding="utf-8")
-declared = set(re.findall(r"^ {4}([A-Za-z_$][\\w$]*)\\s*:", client, re.MULTILINE))
+declared = set(re.findall(r"^ {4}([A-Za-z_$][\w$]*)\s*:", client, re.MULTILINE))
 if not declared:
     raise SystemExit("No API client methods found")
 
