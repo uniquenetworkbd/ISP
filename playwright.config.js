@@ -7,13 +7,13 @@ module.exports = defineConfig({
   fullyParallel: true,
   reporter: [['list'], ['html', { outputFolder: 'playwright-report', open: 'never' }]],
   use: {
-    baseURL: 'http://127.0.0.1:4173/ISP/',
+    baseURL: 'http://127.0.0.1:4173/',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },
   webServer: {
     command: 'python -m http.server 4173 --directory .',
-    url: 'http://127.0.0.1:4173/ISP/',
+    url: 'http://127.0.0.1:4173/',
     reuseExistingServer: !process.env.CI,
     timeout: 30000,
   },
