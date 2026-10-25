@@ -36,6 +36,8 @@ jobs:
           cp -R css _site/css
           cp -R js _site/js
           cp -R assets _site/assets
+          # Every deployment gets a unique runtime asset version so browsers cannot reuse stale JS.
+          sed -i "s/const BUILD_VERSION = '[^']*';/const BUILD_VERSION = '${GITHUB_SHA}';/" _site/js/app.js
           test -f _site/index.html
           test -d _site/css
           test -d _site/js
