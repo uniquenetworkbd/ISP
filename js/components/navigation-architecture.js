@@ -3,14 +3,14 @@ window.ISPApp=window.ISPApp||{};
   const groups=[
     {key:'command',label:'Command',routes:['dashboard']},
     {key:'visualization',label:'Visualization',routes:['topology','map']},
-    {key:'infrastructure',label:'Infrastructure Monitoring',routes:['mikrotik','mikrotikServers','olt','onu','interfaces']},
+    {key:'infrastructure',label:'Infrastructure Monitoring',routes:['mikrotik','mikrotikServers','olt','oltServers','onu','interfaces']},
     {key:'operations',label:'Operations',routes:['alerts','analytics','reports']},
     {key:'management',label:'Management',routes:['devices','system']},
     {key:'system',label:'Module System',routes:['modules']}
   ];
   const meta={
     dashboard:['⌂','Command Center'],topology:['⌘','Topology'],map:['⌖','Network Map'],
-    mikrotik:['◈','MikroTik Dashboard'],mikrotikServers:['◈','MikroTik Servers'],olt:['◉','OLT / PON Dashboard'],
+    mikrotik:['◈','MikroTik Dashboard'],mikrotikServers:['＋','Connect MikroTik'],olt:['◉','OLT / PON Dashboard'],oltServers:['＋','Connect OLT'],
     onu:['◌','ONU Monitoring'],interfaces:['⇄','Interface Monitoring'],alerts:['!','Alert Center'],analytics:['◫','Analytics'],
     reports:['▤','Reports'],devices:['▣','Devices'],system:['⚙','System'],modules:['◫','Module Manager']
   };
