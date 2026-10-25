@@ -5,6 +5,7 @@ import json
 import os
 import ssl
 import urllib.error
+import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
 from typing import Any
@@ -36,16 +37,47 @@ class MikroTikConnector(DeviceConnector):
         if not endpoint:
             raise ValueError("MikroTik management endpoint is required")
         value = endpoint.rstrip("/")
+        # Explicit transports: binary API (8728), API-SSL (8729), or REST.
+        if value.startswith(("routeros-api://", "routeros-api-ssl://")):
+            return value
         if value.endswith("/rest"):
             return value
-        if value.startswith("http://") or value.startswith("https://"):
+        if value.startswith(("http://", "https://")):
             return f"{value}/rest"
         return f"https://{value}/rest"
 
     def _get(self, url: str, username: str, password: str, timeout: float | None = None) -> Any:
+        request_timeout = timeout or float(os.getenv("MIKROTIK_CONNECT_TIMEOUT", "10"))
+        parsed = urllib.parse.urlsplit(url)
+        if parsed.scheme in {"routeros-api", "routeros-api-ssl"}:
+            # The client handles RouterOS binary API sentence framing/auth.
+            try:
+                from routeros_api import RouterOsApiPool
+            except ImportError as exc:
+                raise RuntimeError("RouterOS API transport dependency is not installed") from exc
+            use_ssl = parsed.scheme == "routeros-api-ssl"
+            if not parsed.hostname:
+                raise ValueError("MikroTik API host is missing")
+            pool = RouterOsApiPool(
+                host=parsed.hostname,
+                username=username,
+                password=password,
+                port=parsed.port or (8729 if use_ssl else 8728),
+                use_ssl=use_ssl,
+                ssl_verify=True,
+                ssl_verify_hostname=True,
+                plaintext_login=True,
+                timeout=request_timeout,
+            )
+            api = None
+            try:
+                api = pool.get_api()
+                return api.get_resource("/" + parsed.path.strip("/")).get()
+            finally:
+                if api is not None:
+                    pool.disconnect()
         token = base64.b64encode(f"{username}:{password}".encode()).decode()
         request = urllib.request.Request(url, headers={"Authorization": f"Basic {token}", "Accept": "application/json"})
-        request_timeout = timeout or float(os.getenv("MIKROTIK_CONNECT_TIMEOUT", "10"))
         verify_tls = os.getenv("MIKROTIK_VERIFY_TLS", "true").lower() not in {"0", "false", "no"}
         context = None if verify_tls else ssl._create_unverified_context()
         with urllib.request.urlopen(request, timeout=request_timeout, context=context) as response:
@@ -84,7 +116,7 @@ class MikroTikConnector(DeviceConnector):
             resource = self._first_record(self._get(f"{self._base_url(context.endpoint)}/system/resource", username, password))
             version = resource.get("version")
             return ConnectorResult(status="ok", device_id=context.device_id, observed_at=observed_at, data={"version": version} if version else {}, capabilities=self.capabilities())
-        except (urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError, OSError) as exc:
+        except Exception as exc:
             return ConnectorResult(status="error", device_id=context.device_id, observed_at=observed_at, errors=[f"MikroTik connection test failed: {exc.__class__.__name__}"], capabilities=self.capabilities())
 
     def scan_users(self, context: ConnectorContext) -> tuple[list[dict[str, Any]], list[dict[str, Any]], str | None]:
@@ -139,5 +171,5 @@ class MikroTikConnector(DeviceConnector):
             except (urllib.error.HTTPError, ValueError, IndexError) as exc:
                 if isinstance(exc, urllib.error.HTTPError) and exc.code not in {400, 404}: raise
             return ConnectorResult(status="ok", device_id=context.device_id, observed_at=observed_at, data=data, capabilities=self.capabilities())
-        except (urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError, OSError) as exc:
-            return ConnectorResult(status="error", device_id=context.device_id, observed_at=observed_at, errors=[f"MikroTik REST collection failed: {exc.__class__.__name__}"], capabilities=self.capabilities())
+        except Exception as exc:
+            return ConnectorResult(status="error", device_id=context.device_id, observed_at=observed_at, errors=[f"MikroTik collection failed: {exc.__class__.__name__}"], capabilities=self.capabilities())
