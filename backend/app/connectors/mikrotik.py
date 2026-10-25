@@ -19,21 +19,14 @@ class MikroTikConnector(DeviceConnector):
     device_types = ("router", "mikrotik")
 
     def capabilities(self) -> list[str]:
-        return [
-            "health",
-            "system-resource",
-            "ppp-users",
-            "ppp-active",
-            "interface-stats",
-        ]
+        return ["health", "system-resource", "ppp-users", "ppp-active", "interface-stats"]
 
     @staticmethod
     def _credential(context: ConnectorContext) -> tuple[str, str] | None:
         value: Any = context.credential
         if not isinstance(value, dict):
             return None
-        username = value.get("username")
-        password = value.get("password")
+        username, password = value.get("username"), value.get("password")
         if not isinstance(username, str) or not isinstance(password, str):
             return None
         return username, password
@@ -51,10 +44,7 @@ class MikroTikConnector(DeviceConnector):
 
     def _get(self, url: str, username: str, password: str, timeout: float | None = None) -> Any:
         token = base64.b64encode(f"{username}:{password}".encode()).decode()
-        request = urllib.request.Request(
-            url,
-            headers={"Authorization": f"Basic {token}", "Accept": "application/json"},
-        )
+        request = urllib.request.Request(url, headers={"Authorization": f"Basic {token}", "Accept": "application/json"})
         request_timeout = timeout or float(os.getenv("MIKROTIK_CONNECT_TIMEOUT", "10"))
         verify_tls = os.getenv("MIKROTIK_VERIFY_TLS", "true").lower() not in {"0", "false", "no"}
         context = None if verify_tls else ssl._create_unverified_context()
@@ -91,16 +81,9 @@ class MikroTikConnector(DeviceConnector):
             return ConnectorResult(status="error", device_id=context.device_id, observed_at=observed_at, errors=["MikroTik credentials are missing"], capabilities=self.capabilities())
         try:
             username, password = credentials
-            base = self._base_url(context.endpoint)
-            resource = self._first_record(self._get(f"{base}/system/resource", username, password))
+            resource = self._first_record(self._get(f"{self._base_url(context.endpoint)}/system/resource", username, password))
             version = resource.get("version")
-            return ConnectorResult(
-                status="ok",
-                device_id=context.device_id,
-                observed_at=observed_at,
-                data={"version": version} if version else {},
-                capabilities=self.capabilities(),
-            )
+            return ConnectorResult(status="ok", device_id=context.device_id, observed_at=observed_at, data={"version": version} if version else {}, capabilities=self.capabilities())
         except (urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError, OSError) as exc:
             return ConnectorResult(status="error", device_id=context.device_id, observed_at=observed_at, errors=[f"MikroTik connection test failed: {exc.__class__.__name__}"], capabilities=self.capabilities())
 
@@ -117,18 +100,10 @@ class MikroTikConnector(DeviceConnector):
             name = str(item.get("name") or "").strip()
             if not name:
                 continue
-            users.append({
-                "username": name,
-                "customer_name": item.get("comment") or None,
-                "service_profile": item.get("profile") or None,
-                "service": item.get("service") or None,
-                "assigned_ip": item.get("remote-address") or None,
-                "caller_id": item.get("caller-id") or None,
-                "metadata_json": {
-                    "disabled": item.get("disabled"),
-                    "local_address": item.get("local-address"),
-                },
-            })
+            users.append({"username": name, "customer_name": item.get("comment") or None, "service_profile": item.get("profile") or None,
+                          "service": item.get("service") or None, "assigned_ip": item.get("remote-address") or None,
+                          "caller_id": item.get("caller-id") or None,
+                          "metadata_json": {"disabled": item.get("disabled"), "local_address": item.get("local-address")}})
         return users, active, None
 
     def collect(self, context: ConnectorContext) -> ConnectorResult:
@@ -136,47 +111,33 @@ class MikroTikConnector(DeviceConnector):
         credentials = self._credential(context)
         if credentials is None:
             return ConnectorResult(status="error", device_id=context.device_id, observed_at=observed_at, errors=["MikroTik credential reference did not resolve to username/password."], capabilities=self.capabilities())
-
         username, password = credentials
         try:
             base = self._base_url(context.endpoint)
             resource = self._first_record(self._get(f"{base}/system/resource", username, password))
             data: dict[str, Any] = {}
-            cpu = self._number(resource.get("cpu-load"))
-            total_memory = self._number(resource.get("total-memory"))
-            free_memory = self._number(resource.get("free-memory"))
-            if cpu is not None:
-                data["cpu_percent"] = cpu
-            if total_memory and free_memory is not None and total_memory > 0:
-                data["memory_percent"] = ((total_memory - free_memory) / total_memory) * 100
-            if resource.get("version"):
-                data["routeros_version"] = str(resource["version"])
-
+            cpu = self._number(resource.get("cpu-load")); total_memory = self._number(resource.get("total-memory")); free_memory = self._number(resource.get("free-memory"))
+            if cpu is not None: data["cpu_percent"] = cpu
+            if total_memory and free_memory is not None and total_memory > 0: data["memory_percent"] = ((total_memory - free_memory) / total_memory) * 100
+            if resource.get("version"): data["routeros_version"] = str(resource["version"])
             try:
                 health = self._first_record(self._get(f"{base}/system/health", username, password))
                 temperature = self._number(health.get("cpu-temperature") or health.get("temperature"))
-                if temperature is not None:
-                    data["temperature_c"] = temperature / 10 if temperature > 150 else temperature
+                if temperature is not None: data["temperature_c"] = temperature / 10 if temperature > 150 else temperature
             except urllib.error.HTTPError as exc:
-                if exc.code not in {400, 404}:
-                    raise
-
+                if exc.code not in {400, 404}: raise
             try:
                 active = self._records(self._get(f"{base}/ppp/active", username, password))
                 data["active_users"] = len(active)
-            except urllib.error.HTTPError as exc:
-                if exc.code not in {400, 404}:
-                    raise
-
+            except (urllib.error.HTTPError, IndexError) as exc:
+                if isinstance(exc, urllib.error.HTTPError) and exc.code not in {400, 404}: raise
             try:
                 interfaces = self._records(self._get(f"{base}/interface", username, password))
                 rx_bytes = sum(int(float(item.get("rx-byte", 0))) for item in interfaces if str(item.get("rx-byte", "")).replace(".", "", 1).isdigit())
                 tx_bytes = sum(int(float(item.get("tx-byte", 0))) for item in interfaces if str(item.get("tx-byte", "")).replace(".", "", 1).isdigit())
-                data["interface_rx_bytes"] = rx_bytes
-                data["interface_tx_bytes"] = tx_bytes
-            except (urllib.error.HTTPError, ValueError):
-                pass
-
+                data["interface_rx_bytes"] = rx_bytes; data["interface_tx_bytes"] = tx_bytes
+            except (urllib.error.HTTPError, ValueError, IndexError) as exc:
+                if isinstance(exc, urllib.error.HTTPError) and exc.code not in {400, 404}: raise
             return ConnectorResult(status="ok", device_id=context.device_id, observed_at=observed_at, data=data, capabilities=self.capabilities())
         except (urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError, OSError) as exc:
             return ConnectorResult(status="error", device_id=context.device_id, observed_at=observed_at, errors=[f"MikroTik REST collection failed: {exc.__class__.__name__}"], capabilities=self.capabilities())
