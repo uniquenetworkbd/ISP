@@ -1,5 +1,7 @@
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 from app.api.routes.auth import router as auth_router
 from app.api.routes.database import router as database_router
@@ -7,6 +9,7 @@ from app.api.routes.devices import router as devices_router
 from app.api.routes.monitoring import router as monitoring_router
 from app.api.routes.network import router as network_router
 from app.core.config import settings
+from app.db import get_db
 
 app = FastAPI(title=settings.app_name, version=settings.app_version)
 
@@ -28,3 +31,9 @@ app.include_router(database_router, prefix="/api/database", tags=["database"])
 @app.get("/health", tags=["system"])
 def health() -> dict[str, str]:
     return {"status": "ok", "service": settings.app_name}
+
+
+@app.get("/health/ready", tags=["system"])
+def readiness(db: Session = Depends(get_db)) -> dict[str, str]:
+    db.execute(text("SELECT 1"))
+    return {"status": "ready", "service": settings.app_name, "database": "ok"}
