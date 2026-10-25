@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from app.api.dependencies import require_roles
@@ -13,7 +13,7 @@ from app.connectors.mikrotik import MikroTikConnector
 from app.credentials.device_store import resolve_device_credential
 from app.credentials.encrypted import CredentialEncryptionError, decrypt_secret, encrypt_secret
 from app.db import get_db
-from app.models import Device, DeviceCredential, MikroTikUser, User
+from app.models import Alert, Device, DeviceCredential, Metric, MikroTikUser, User
 from app.schemas.device import MikroTikConnectionTest, MikroTikScanResult, MikroTikServerCreate, MikroTikServerRead, MikroTikUserRead
 
 router = APIRouter()
@@ -72,6 +72,24 @@ def create_server(payload: MikroTikServerCreate, db: Session = Depends(get_db), 
     db.commit()
     db.refresh(device)
     return _server_read(db, device)
+
+
+@router.delete("/servers/{server_id}", status_code=204)
+def delete_server(server_id: int, db: Session = Depends(get_db), user: User = Depends(require_roles("admin", "operator"))):
+    device = db.get(Device, server_id)
+    if device is None or device.device_type != "mikrotik":
+        raise HTTPException(status_code=404, detail="MikroTik server not found")
+
+    # Remove all server-owned inventory/history first. Audit history is intentionally retained.
+    db.execute(delete(MikroTikUser).where(MikroTikUser.device_id == server_id))
+    db.execute(delete(DeviceCredential).where(DeviceCredential.device_id == server_id))
+    db.execute(delete(Metric).where(Metric.device_id == server_id))
+    db.execute(delete(Alert).where(Alert.device_id == server_id))
+    record_audit(db, action="mikrotik.server.deleted", user_id=user.id, resource_type="device", resource_id=device.id,
+                 details={"server_name": device.name})
+    db.delete(device)
+    db.commit()
+    return None
 
 
 @router.post("/test-connection")
