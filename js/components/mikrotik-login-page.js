@@ -1,10 +1,91 @@
 window.ISPApp=window.ISPApp||{};
 (function(){
   const route='mikrotikServers';
-  const shell=`<section class="page-section mikrotik-login-page"><header class="page-hero"><div><span class="eyebrow">Infrastructure / MikroTik</span><h2>MikroTik Connection</h2><p>Configure a RouterOS device, verify access, save the connection, and then synchronize inventory and telemetry.</p></div><div class="page-actions"><button class="btn btn-secondary" data-mk-action="test" type="button">Test Connection</button><button class="btn btn-primary" data-mk-action="save" type="button">Save &amp; Connect</button></div></header><div class="grid-2"><article class="panel"><div class="panel-header"><div><h3>Router Connection</h3><p>Use the RouterOS REST endpoint through the backend.</p></div><span data-mk-status class="status-pill">Not tested</span></div><form data-mk-form><div class="form-grid"><label>Server Name<input name="name" required placeholder="Core Router 01"></label><label>IP / Host<input name="server_ip" required placeholder="192.168.88.1"></label><label>Username<input name="username" required autocomplete="username"></label><label>Password<input name="password" type="password" required autocomplete="current-password"></label><label>REST Port<input name="port" type="number" value="443" min="1" max="65535"></label><label>Timeout<input name="timeout_seconds" type="number" value="10" min="2" max="60"></label><label>Access<select name="access_mode"><option value="read">Read</option><option value="read_write">Read / Write</option><option value="full">Full</option></select></label><label>Transport<select name="transport"><option value="https">HTTPS / REST</option><option value="http">HTTP / REST (test only)</option></select></label></div></form></article><article class="panel"><div class="panel-header"><div><h3>Prerequisites</h3><p>Router-side checks before connection.</p></div></div><ul class="check-list"><li>RouterOS v7 REST support</li><li><code>www-ssl</code> enabled for HTTPS REST</li><li>Monitoring user with appropriate policy</li><li>Firewall permits backend → router traffic</li><li>Certificate/trust policy configured</li></ul><div class="callout warning"><strong>Architecture:</strong> GitHub Pages is the UI. FastAPI is the connection broker; it stores the device record and communicates with RouterOS.</div></article></div><article class="panel"><div class="panel-header"><div><h3>Stored Servers</h3><p>Saved MikroTik inventory and connection state.</p></div><button class="btn btn-secondary" data-mk-action="refresh" type="button">Refresh</button></div><div data-mk-list><div class="empty-state">Loading stored servers…</div></div></article></section>`;
-  function values(){const f=document.querySelector('[data-mk-form]');return Object.fromEntries(new FormData(f).entries());}
-  async function run(type){const status=document.querySelector('[data-mk-status]');const api=window.ISPApp.apiClient;if(type==='refresh'){window.ISPApp.apiStore?.loadMikroTikServers?.();return;}if(!api||!window.ISPApp.api?.baseUrl){status.textContent='Backend not configured';window.ISPApp.ui?.toast?.('FastAPI backend is not configured yet.','warning');return;}try{status.textContent='Working…';const d=values();if(type==='test'){const r=await api.testMikroTikConnection(d);status.textContent=r?.status||'Connection OK';}else{await api.createMikroTikServer(d);status.textContent='Saved & connected';window.ISPApp.apiStore?.loadMikroTikServers?.();}}catch(e){status.textContent='Failed';window.ISPApp.ui?.toast?.(e.message||'MikroTik operation failed.','error');}}
-  function render(){const root=document.querySelector('[data-view="mikrotikServers"]');if(!root||root.dataset.mkLoginReady==='true')return;root.dataset.mkLoginReady='true';root.innerHTML=shell;root.querySelectorAll('[data-mk-action]').forEach(b=>b.addEventListener('click',()=>run(b.dataset.mkAction)));}
-  document.addEventListener('isp:app-ready',render);document.addEventListener('hashchange',()=>{if(window.ISPApp.router?.current?.()===route)render();});
+  function ensureRoot(){
+    let root=document.querySelector('[data-view="mikrotikServers"]');
+    if(root)return root;
+    const main=document.querySelector('main.main');
+    if(!main)return null;
+    root=document.createElement('section');
+    root.className='content mikrotik-page';
+    root.dataset.view=route;
+    root.hidden=true;
+    main.appendChild(root);
+    return root;
+  }
+  const shell=`<section class="page-section mikrotik-login-page">
+    <header class="page-hero"><div><span class="eyebrow">Infrastructure / MikroTik</span><h2>Add &amp; Connect MikroTik</h2><p>Configure a RouterOS v7 device, test access through FastAPI, save encrypted credentials, then scan users and collect live telemetry.</p></div><div class="page-actions"><button class="btn btn-secondary" data-mk-action="test" type="button">Test Connection</button><button class="btn btn-primary" data-mk-action="save" type="button">Save &amp; Connect</button></div></header>
+    <div class="grid-2">
+      <article class="panel"><div class="panel-header"><div><h3>Router Connection</h3><p>GitHub Pages is the UI; the configured FastAPI backend brokers RouterOS access.</p></div><span data-mk-status class="status-pill">Not tested</span></div>
+        <form data-mk-form autocomplete="off"><div class="form-grid">
+          <label>Server Name<input name="name" required maxlength="160" placeholder="Core Router 01"></label>
+          <label>IP / Host<input name="server_ip" required maxlength="255" inputmode="url" placeholder="192.168.88.1"></label>
+          <label>Username<input name="username" required maxlength="120" autocomplete="username" placeholder="monitor"></label>
+          <label>Password<input name="password" type="password" required maxlength="512" autocomplete="current-password" placeholder="RouterOS password"></label>
+          <label>REST Port<input name="port" type="number" value="443" min="1" max="65535" required></label>
+          <label>Timeout (seconds)<input name="timeout_seconds" type="number" value="10" min="1" max="120" required></label>
+          <label>Access Mode<select name="access_mode"><option value="read">Read</option><option value="write">Write</option><option value="full">Full</option></select></label>
+          <label>Model<input name="model" maxlength="120" placeholder="RB3011 / CCR / CHR"></label>
+          <label>POP ID (optional)<input name="pop_id" type="number" min="1" step="1" placeholder="e.g. 1"></label>
+        </div><div class="form-note"><strong>Flow:</strong> Test → Save &amp; Connect → Scan Users → Live Telemetry.</div></form>
+      </article>
+      <article class="panel"><div class="panel-header"><div><h3>RouterOS Requirements</h3><p>Checks required on the MikroTik side.</p></div></div>
+        <ul class="check-list"><li>RouterOS v7 with REST support</li><li><code>www-ssl</code> enabled for HTTPS REST</li><li>Dedicated monitoring user with appropriate policy</li><li>Firewall permits backend → router traffic</li><li>Certificate/trust policy configured</li></ul>
+        <div class="callout warning"><strong>Security:</strong> credentials are sent only to the configured backend; the frontend does not save the MikroTik password in localStorage.</div>
+      </article>
+    </div>
+    <article class="panel"><div class="panel-header"><div><h3>Stored MikroTik Inventory</h3><p>Saved devices, status, RouterOS version, user count and live actions.</p></div><button class="btn btn-secondary" data-mk-action="refresh" type="button">Refresh</button></div><div data-mk-list><div class="empty-state">Loading stored servers…</div></div></article>
+  </section>`;
+  function values(){
+    const form=document.querySelector('[data-mk-form');
+    const data=Object.fromEntries(new FormData(form).entries());
+    ['port','timeout_seconds','pop_id'].forEach(k=>{if(data[k]==='')delete data[k];else if(data[k]!=null)data[k]=Number(data[k]);});
+    return data;
+  }
+  function status(text,kind=''){const el=document.querySelector('[data-mk-status]');if(el){el.textContent=text;el.className=`status-pill ${kind}`;}}
+  function listTarget(){return document.querySelector('[data-mk-list]');}
+  function escape(value){const d=document.createElement('div');d.textContent=value==null?'—':String(value);return d.innerHTML;}
+  async function refresh(){
+    const target=listTarget();
+    if(!target)return;
+    const api=window.ISPApp.apiClient;
+    if(!api?.isConfigured()){target.innerHTML='<div class="empty-state">FastAPI backend is not configured. Inventory is unavailable.</div>';return;}
+    try{
+      const result=await api.mikrotikServers();
+      const items=result?.items||[];
+      if(!items.length){target.innerHTML='<div class="empty-state">No MikroTik servers have been saved yet.</div>';return;}
+      target.innerHTML=items.map(s=>`<div class="device-row" data-server-id="${s.id}"><div><strong>${escape(s.name)}</strong><span>${escape(s.server_ip)}:${escape(s.port)} · ${escape(s.status)} · ${escape(s.routeros_version||'RouterOS unknown')}</span></div><div class="device-actions"><span class="badge">${escape(s.user_count)} users</span><button class="btn btn-secondary" type="button" data-server-action="scan" data-id="${s.id}">Scan</button><button class="btn btn-secondary" type="button" data-server-action="live" data-id="${s.id}">Live</button><button class="btn btn-danger" type="button" data-server-action="delete" data-id="${s.id}">Delete</button></div></div>`).join('');
+      target.querySelectorAll('[data-server-action]').forEach(b=>b.addEventListener('click',()=>serverAction(b.dataset.serverAction,Number(b.dataset.id))));
+    }catch(e){target.innerHTML=`<div class="empty-state">Could not load inventory: ${escape(e.message)}</div>`;}
+  }
+  async function serverAction(type,id){
+    const api=window.ISPApp.apiClient;if(!api?.isConfigured())return;
+    try{
+      if(type==='scan'){status('Scanning users…');await api.mikrotikScan(id);status('User scan complete','success');}
+      if(type==='live'){status('Collecting live telemetry…');const r=await api.mikrotikLive(id);status(`Live data received · ${new Date(r.observed_at).toLocaleTimeString()}`,'success');}
+      if(type==='delete'){if(!window.confirm('Delete this MikroTik server and its stored inventory/history?'))return;await api.mikrotikDeleteServer(id);status('Server deleted','success');}
+      await refresh();
+    }catch(e){status('Operation failed','error');window.ISPApp.ui?.toast?.(e.message||'MikroTik operation failed.','error');}
+  }
+  async function action(type){
+    if(type==='refresh')return refresh();
+    const api=window.ISPApp.apiClient;
+    if(!api?.isConfigured()){status('Backend not configured','warning');window.ISPApp.ui?.toast?.('Configure the FastAPI backend origin before connecting a MikroTik.','warning');return;}
+    const form=document.querySelector('[data-mk-form');if(!form?.reportValidity())return;
+    try{
+      const data=values();
+      if(type==='test'){status('Testing…');const r=await api.mikrotikTestConnection(data);status(`Connected${r?.version?` · RouterOS ${r.version}`:''}`,'success');window.ISPApp.ui?.toast?.('MikroTik connection test passed.','success');}
+      if(type==='save'){status('Saving & connecting…');const r=await api.mikrotikCreateServer(data);status('Saved & connected','success');window.ISPApp.ui?.toast?.(`MikroTik ${r?.name||data.name} saved.`, 'success');await refresh();}
+    }catch(e){status('Connection failed','error');window.ISPApp.ui?.toast?.(e.message||'MikroTik operation failed.','error');}
+  }
+  function render(){
+    const root=ensureRoot();if(!root||root.dataset.mkLoginReady==='true')return;
+    root.dataset.mkLoginReady='true';root.innerHTML=shell;
+    root.querySelectorAll('[data-mk-action]').forEach(b=>b.addEventListener('click',()=>action(b.dataset.mkAction)));
+    if(window.ISPApp.router?.current?.()===route)root.hidden=false;
+    refresh();
+  }
+  document.addEventListener('isp:app-ready',()=>{render();window.ISPApp.router?.apply?.();});
+  window.addEventListener('isp:route',e=>{if(e.detail?.route===route){render();refresh();}});
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',render,{once:true});else render();
 })();
