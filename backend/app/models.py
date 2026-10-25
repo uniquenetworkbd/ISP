@@ -41,6 +41,11 @@ class Device(Base):
     model: Mapped[str | None] = mapped_column(String(120), nullable=True)
     management_address: Mapped[str | None] = mapped_column(String(255), nullable=True)
     status: Mapped[str] = mapped_column(String(32), default="unknown")
+    access_mode: Mapped[str] = mapped_column(String(16), default="read", server_default="read")
+    timeout_seconds: Mapped[int] = mapped_column(Integer, default=10, server_default="10")
+    routeros_version: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    last_scan_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_live_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     consecutive_failures: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
     circuit_state: Mapped[str] = mapped_column(String(16), default="closed", server_default="closed")
     circuit_opened_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
@@ -71,6 +76,30 @@ class ONU(Base):
     tx_dbm: Mapped[Decimal | None] = mapped_column(Numeric(7, 2), nullable=True)
     temperature_c: Mapped[Decimal | None] = mapped_column(Numeric(7, 2), nullable=True)
     distance_m: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
+
+class MikroTikUser(Base):
+    __tablename__ = "mikrotik_users"
+    __table_args__ = (
+        Index("idx_mikrotik_users_device", "device_id"),
+        Index("idx_mikrotik_users_username", "username"),
+        Index("idx_mikrotik_users_status", "status_snapshot"),
+    )
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    device_id: Mapped[int] = mapped_column(ForeignKey("devices.id", ondelete="CASCADE"), nullable=False)
+    username: Mapped[str] = mapped_column(String(160), nullable=False)
+    customer_name: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    service_profile: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    service: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    assigned_ip: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    caller_id: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    status_snapshot: Mapped[str] = mapped_column(String(32), default="unknown", server_default="unknown")
+    last_live_ip: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    last_live_uptime: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    metadata_json: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    first_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    last_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    last_synced_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
 class Metric(Base):
@@ -124,7 +153,9 @@ class DeviceCredential(Base):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     device_id: Mapped[int] = mapped_column(ForeignKey("devices.id", ondelete="CASCADE"), unique=True)
     secret_ref: Mapped[str] = mapped_column(String(255))
-    auth_mode: Mapped[str] = mapped_column(String(40), default="secret-ref")
+    auth_mode: Mapped[str] = mapped_column(String(40), default="encrypted-db")
+    encrypted_username: Mapped[str | None] = mapped_column(Text, nullable=True)
+    encrypted_password: Mapped[str | None] = mapped_column(Text, nullable=True)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
