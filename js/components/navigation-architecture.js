@@ -3,7 +3,7 @@ window.ISPApp=window.ISPApp||{};
   const groups=[
     {key:'command',label:'Command',routes:['dashboard']},
     {key:'visualization',label:'Visualization',routes:['topology','map']},
-    {key:'infrastructure',label:'Infrastructure Monitoring',routes:['mikrotik','olt','onu','interfaces']},
+    {key:'infrastructure',label:'Infrastructure Monitoring',routes:['mikrotik','mikrotikServers','olt','onu','interfaces']},
     {key:'operations',label:'Operations',routes:['alerts','analytics','reports']},
     {key:'management',label:'Management',routes:['devices','system']}
   ];
@@ -14,7 +14,6 @@ window.ISPApp=window.ISPApp||{};
     const links=[...document.querySelectorAll('.sidebar [data-route]')];
     const byRoute=new Map(links.map(a=>[a.dataset.route,a]));
     if(!expected.every(route=>byRoute.has(route)))return;
-    if(nav.dataset.architectureReady==='true')return;
     const frag=document.createDocumentFragment();
     groups.forEach(group=>{
       const label=document.createElement('div');
@@ -32,6 +31,7 @@ window.ISPApp=window.ISPApp||{};
     sidebar?.querySelectorAll('.sidebar > .nav:not(#primaryNav)').forEach(x=>x.hidden=true);
     const footer=sidebar?.querySelector('.sidebar-footer');
     if(footer)footer.querySelector('span:last-child')?.replaceChildren(document.createTextNode('Frontend shell • Page architecture v1.0'));
+    window.ISPApp.router?.apply?.();
   }
   function init(){
     const nav=document.getElementById('primaryNav');
