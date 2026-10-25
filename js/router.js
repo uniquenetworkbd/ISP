@@ -1,6 +1,6 @@
 window.ISPApp = window.ISPApp || {};
 (function(){
-  const titles={dashboard:'Command Center',topology:'Topology',map:'Network Map',mikrotik:'MikroTik Dashboard',olt:'OLT / PON Dashboard',onu:'ONU Monitoring',interfaces:'Interface Monitoring',devices:'Devices',alerts:'Alert Center',analytics:'Analytics',reports:'Reports',system:'System'};
+  const titles={dashboard:'Command Center',topology:'Topology',map:'Network Map',mikrotik:'MikroTik Dashboard',mikrotikServers:'MikroTik Servers',olt:'OLT / PON Dashboard',onu:'ONU Monitoring',interfaces:'Interface Monitoring',devices:'Devices',alerts:'Alert Center',analytics:'Analytics',reports:'Reports',system:'System'};
   function current(){return (location.hash||'#dashboard').slice(1).split('/')[0] || 'dashboard';}
   function apply(){
     const route=titles[current()]?current():'dashboard';
