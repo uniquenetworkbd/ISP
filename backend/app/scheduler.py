@@ -40,7 +40,10 @@ async def run_forever(
         started = time.monotonic()
         await asyncio.to_thread(cycle)
         elapsed = time.monotonic() - started
-        await asyncio.wait_for(stop.wait(), timeout=max(0, interval - elapsed))
+        try:
+            await asyncio.wait_for(stop.wait(), timeout=max(0, interval - elapsed))
+        except asyncio.TimeoutError:
+            continue
 
 
 if __name__ == "__main__":
