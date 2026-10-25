@@ -84,6 +84,8 @@ window.ISPApp = window.ISPApp || {};
     mikrotikScan: (id) => request(`/mikrotik/servers/${encodeURIComponent(id)}/scan`, { method: 'POST' }),
     mikrotikUsers: (id, search = '') => request(`/mikrotik/servers/${encodeURIComponent(id)}/users${search ? `?search=${encodeURIComponent(search)}` : ''}`),
     mikrotikLive: (id) => request(`/mikrotik/servers/${encodeURIComponent(id)}/live`),
+    mikrotikTestSavedServer: (id) => request(`/mikrotik/servers/${encodeURIComponent(id)}/test`, { method: 'POST' }),
+    mikrotikConnectionTests: (id, limit = 20) => request(`/mikrotik/servers/${encodeURIComponent(id)}/connection-tests?limit=${encodeURIComponent(limit)}`),
   };
 
   window.ISPApp.apiClient = apiClient;
