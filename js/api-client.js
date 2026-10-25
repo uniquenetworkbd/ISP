@@ -4,6 +4,7 @@ window.ISPApp = window.ISPApp || {};
   const config = window.ISPApp.api || {};
   const baseUrl = (config.baseUrl || '').replace(/\/$/, '');
   const tokenKey = config.tokenKey || 'isp_access_token';
+  const defaultTimeout = Number(config.timeoutMs) > 0 ? Number(config.timeoutMs) : 10000;
 
   function authHeaders() {
     const token = window.localStorage.getItem(tokenKey);
@@ -17,17 +18,32 @@ window.ISPApp = window.ISPApp || {};
       ...authHeaders(),
       ...(options.headers || {}),
     };
-    const response = await fetch(`${baseUrl}/api${path}`, { ...options, headers });
-    let payload = null;
-    try { payload = await response.json(); } catch (_) { payload = null; }
-    if (!response.ok) {
-      const message = payload?.detail || `API request failed: ${response.status}`;
-      const error = new Error(message);
-      error.status = response.status;
-      error.payload = payload;
+    const controller = new AbortController();
+    const timeoutMs = Number(options.timeoutMs) > 0 ? Number(options.timeoutMs) : defaultTimeout;
+    const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const response = await fetch(`${baseUrl}/api${path}`, { ...options, headers, signal: controller.signal });
+      let payload = null;
+      try { payload = await response.json(); } catch (_) { payload = null; }
+      if (!response.ok) {
+        const message = payload?.detail || `API request failed: ${response.status}`;
+        const error = new Error(message);
+        error.status = response.status;
+        error.payload = payload;
+        throw error;
+      }
+      return payload;
+    } catch (error) {
+      if (error?.name === 'AbortError') {
+        const timeoutError = new Error(`API request timed out after ${timeoutMs}ms`);
+        timeoutError.code = 'API_TIMEOUT';
+        timeoutError.path = path;
+        throw timeoutError;
+      }
       throw error;
+    } finally {
+      window.clearTimeout(timeoutId);
     }
-    return payload;
   }
 
   const apiClient = {
