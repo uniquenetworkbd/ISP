@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from app.api.routes.audit import router as audit_router
 from app.api.routes.auth import router as auth_router
 from app.api.routes.database import router as database_router
 from app.api.routes.devices import router as devices_router
@@ -26,6 +27,7 @@ app.include_router(devices_router, prefix="/api/devices", tags=["devices"])
 app.include_router(monitoring_router, prefix="/api/monitoring", tags=["monitoring"])
 app.include_router(network_router, prefix="/api/network", tags=["network"])
 app.include_router(database_router, prefix="/api/database", tags=["database"])
+app.include_router(audit_router, prefix="/api/audit", tags=["audit"])
 
 
 @app.get("/health", tags=["system"])
