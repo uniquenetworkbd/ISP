@@ -29,7 +29,10 @@ class POP(Base):
 
 class Device(Base):
     __tablename__ = "devices"
-    __table_args__ = (Index("idx_devices_type", "device_type"),)
+    __table_args__ = (
+        Index("idx_devices_type", "device_type"),
+        Index("idx_devices_circuit_state", "circuit_state"),
+    )
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     pop_id: Mapped[int | None] = mapped_column(ForeignKey("pops.id"), nullable=True)
     name: Mapped[str] = mapped_column(String(160))
